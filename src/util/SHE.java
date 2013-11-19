@@ -213,16 +213,16 @@ public class SHE {
 		//input[0] = 99;
 		if(input.length%blockSize != 0){
 			int length = input.length;
-			Misc.PrintMemInfo(Runtime.getRuntime());
+			//Misc.PrintMemInfo(Runtime.getRuntime());
 			//input = Arrays.copyOf(input, (input.length/32+1)*32);
 			byte[] temp = null; 
-			System.out.println((input.length/blockSize+1)*blockSize / (1024*1024));
+			//System.out.println((input.length/blockSize+1)*blockSize / (1024*1024));
 			temp=new byte[(input.length/blockSize+1)*blockSize];
 			System.arraycopy(input, 0, temp, 0, input.length);
 			input = temp;
 			temp = null;
 			input[length] = 69;
-			Misc.PrintMemInfo(Runtime.getRuntime());//System.gc();
+			//Misc.PrintMemInfo(Runtime.getRuntime());//System.gc();
 		}
 		int numBlocks = input.length/blockSize;
 
