@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class AHome {
 
-	protected Shell shell;
+	protected Shell shlPortunesAdministrator;
 
 	/**
 	 * Launch the application.
@@ -27,9 +27,9 @@ public class AHome {
 	public void open() {
 		Display display = Display.getDefault();
 		createContents();
-		shell.open();
-		shell.layout();
-		while (!shell.isDisposed()) {
+		shlPortunesAdministrator.open();
+		shlPortunesAdministrator.layout();
+		while (!shlPortunesAdministrator.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
@@ -40,9 +40,9 @@ public class AHome {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
-		shell.setSize(450, 300);
-		shell.setText("SWT Application");
+		shlPortunesAdministrator = new Shell();
+		shlPortunesAdministrator.setSize(450, 300);
+		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 
 	}
 
