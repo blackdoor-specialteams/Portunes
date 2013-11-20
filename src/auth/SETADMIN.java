@@ -10,8 +10,9 @@ public class SETADMIN extends Request implements Serializable {
 	public SETADMIN(String userName, String newAdminName, byte[] newAdminPassword, String adminName, byte[] adminPassword) {
 		super(Operation.SETADMIN);
 		username = userName;
-		admin = adminName;
+		this.adminName = adminName;
 		adminPW = adminPassword;
+		this.admin = true;
 		this.newAdminPassword = newAdminPassword;
 		this.newAdminName = newAdminName;
 		//this.operation = Operation.SETADMIN;

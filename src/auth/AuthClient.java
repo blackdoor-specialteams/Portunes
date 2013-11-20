@@ -28,7 +28,9 @@ import util.SHE;
 
 /**
  * @author kAG0
- * API for a remote client to authenticate, add, remove or modify users in a database
+ * API for a remote client to authenticate, add, remove or modify users in a database.
+ * Now with many more operations!
+ * All communication is encrypted!
  */
 public class AuthClient {
 	private String server;

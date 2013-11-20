@@ -30,7 +30,10 @@ import util.Crypto.EncryptionResult;
 
 /**
  * @author kAG0
- * 
+ * Server which communicates with AuthClient by giving a session key to client 
+ * and receiving/replying to client request with encrypted messages.
+ * Each connection is opened in a new thread and each thread handles requests
+ * by talking to a SQL db.
  */
 public class AuthServer {
 	private int port = 1234;
