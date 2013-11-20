@@ -12,6 +12,7 @@ public class SETADMIN extends Request implements Serializable {
 		username = userName;
 		this.adminName = adminName;
 		adminPW = adminPassword;
+		this.admin = true;
 		this.newAdminPassword = newAdminPassword;
 		this.newAdminName = newAdminName;
 		//this.operation = Operation.SETADMIN;
