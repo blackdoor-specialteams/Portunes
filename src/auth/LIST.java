@@ -9,7 +9,7 @@ public class LIST extends Request implements Serializable {
 	
 	public LIST(String adminName, byte[] adminPass) {
 		super(Operation.LIST);
-		admin= adminName;
+		this.adminName= adminName;
 		adminPW = adminPass;
 	}
 

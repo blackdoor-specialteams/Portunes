@@ -8,7 +8,7 @@ public class ADD extends Request implements Serializable {
 	ADD(String userName, String name, byte[] pass, String adminName, byte[] adminPass){
 		super(Operation.ADD);
 		username = userName;
-		admin = adminName;
+		this.adminName = adminName;
 		userPW = pass;
 		adminPW = adminPass;
 		this.name = name;
