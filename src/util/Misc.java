@@ -1,5 +1,9 @@
 package util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 
 public class Misc {
@@ -19,6 +23,22 @@ public class Misc {
 	        + runtime.freeMemory() / mb);
 	    //Print total available memory
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
+	}
+	
+	/**
+	 * Serialize an object into a byte array
+	 * @param s a Serializable object
+	 * @return s serialized into a byte array
+	 * @throws IOException
+	 */
+	public static byte[] serialize(Serializable s) throws IOException{
+		byte[] out;
+		ByteArrayOutputStream byteOutS = new ByteArrayOutputStream();
+		ObjectOutputStream objOutS = new ObjectOutputStream(byteOutS);
+		objOutS.writeObject(s);
+		out = byteOutS.toByteArray();
+		objOutS.close();
+		return out;
 	}
 	
 	/**

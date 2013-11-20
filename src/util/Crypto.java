@@ -3,6 +3,7 @@
  */
 package util;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.AlgorithmParameters;
 import java.security.MessageDigest;
@@ -252,7 +253,7 @@ public class Crypto {
 		cipher = null;
 	}
 	
-	public static class EncryptionResult{
+	public static class EncryptionResult implements Serializable{
 		private byte[] output;
 		private byte[] iv;
 		private byte[] salt;

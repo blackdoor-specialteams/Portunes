@@ -5,6 +5,7 @@ package auth;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +20,11 @@ import java.net.UnknownHostException;
 
 import auth.AuthRequest.CSHI;
 import auth.AuthRequest.Operation;
-import auth.User.UserRight;
+//import auth.User.UserRight;
+import util.Crypto.EncryptionResult;
 import util.Hash;
+import util.Misc;
+import util.SHE;
 
 /**
  * @author kAG0
@@ -34,7 +38,10 @@ public class AuthClient {
 	private ObjectOutput outputObject;
 	private InputStream inputBuffer;
 	private ObjectInput inputObject;
-	public static final String greeting = "hello server";
+	public static final String greeting = AuthServer.greeting;
+	public static final int saltLength = AuthServer.saltLength;
+	public static final int passLength = AuthServer.passLength;
+	public static final int stretchLength = AuthServer.stretchLength;
 	
 //	AuthClient(){
 //		server = null;
@@ -192,7 +199,9 @@ public class AuthClient {
 	}
 	
 	private void sendGreeting() throws IOException{
+		
 		outputObject.writeObject(greeting);
+		//TODO add username to greeting
 	}
 	
 	/**
@@ -212,8 +221,8 @@ public class AuthClient {
 	 * @param request the request to be sent to the server
 	 * @return returns the server's reply to request
 	 */
-	public AuthReply exchange(AuthRequest request) {
-		AuthReply reply = null;
+	public Request exchange(Request request) {
+		//Request reply = null;
 
 		try {
 			openSocketOutput();
@@ -224,26 +233,40 @@ public class AuthClient {
 		}
 		try {
 			sendGreeting();
-			byte[] challenge = null;
-			challenge = (byte[]) inputObject.readObject();
+			byte[] salt = null;
+			byte[] HSPSK = null;
+			byte[] HSP = null;
+			byte[] SK = null;
+			byte[] credentials = null;
+			credentials = (byte[]) inputObject.readObject();
 			
+			System.arraycopy(credentials, 0, salt, 0, saltLength);
 			
-			switch(request.getIndicator()){
-			case AUTH:
-				request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(), challenge));
-				break;
-			case NORMAL:
-				request.setPasswordHash(getSaltyHash(request.getPasswordHash(), challenge));
-				break;
+			System.arraycopy(credentials, saltLength, HSPSK, 0, passLength);
+			
+			if(request.admin){
+				HSP = Hash.getStretchedSHA256(request.adminPW, salt, stretchLength);
 			}
+			else HSP = Hash.getStretchedSHA256(request.userPW, salt, stretchLength);
+			SK = Misc.XOR(HSP, HSPSK);
+			//switch(request.getIndicator()){
+			//case AUTH:
+				//request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(), credentials));
+			//	break;
+			//case NORMAL:
+			//	request.setPasswordHash(getSaltyHash(request.getPasswordHash(), credentials));
+			//	break;
+			//}
 			
-			sendRequest(request);
+			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK, null));//send encrypted request
+			
+			//sendRequest(request);
 //			try {
 //				openSocketInput();
 //			} catch (Exception e) {
 //				return null;
 //			}
-			reply = reciveReply();
+			request = reciveReply(SK);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -255,7 +278,7 @@ public class AuthClient {
 				e.printStackTrace();
 			}
 		}
-		return reply;
+		return request;
 	}
 	
 	private byte[] Hash(String string){	
@@ -293,12 +316,21 @@ public class AuthClient {
 		}
 	}
 	
-	private void sendRequest(AuthRequest request) throws IOException{
+	private void sendRequest(Request request) throws IOException{
 		outputObject.writeObject(request);
 	}
-	private AuthReply reciveReply() throws ClassNotFoundException, IOException{
+	private Object decryptComm(byte[] seshKey, EncryptionResult comm) throws IOException, ClassNotFoundException{
+		byte[] out = SHE.doSHE(comm.getOutput(), seshKey, comm.getIv()).getOutput();
+		ByteArrayInputStream byteInS = new ByteArrayInputStream(out);
+		ObjectInputStream objInS = new ObjectInputStream(byteInS);
+		Object reply = objInS.readObject();
+		objInS.close();
+		return reply;
+	}
+	private Request reciveReply(byte[] sessionKey) throws ClassNotFoundException, IOException{
 		if(inputObject != null){
-			return (AuthReply) inputObject.readObject();
+			Request reply = (Request) decryptComm(sessionKey, (EncryptionResult) inputObject.readObject());
+			return reply;
 		}
 		else return null;
 	}

@@ -5,6 +5,7 @@ package auth;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
@@ -14,13 +15,18 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
 
 import auth.AuthRequest.Operation;
 import util.Hash;
+import util.Misc;
+import util.SHE;
+import util.Crypto.EncryptionResult;
 
 /**
  * @author kAG0
@@ -33,7 +39,10 @@ public class AuthServer {
 	//TODO put in actual DB
 	//TODO replace all authmanager stuff with nemo's Resolver(or whatever)
 	private AuthManager authManager; //replace this with a SQL db manager
-	public static final String greeting = "hello server";
+	public static final String greeting = "Portumnes";
+	public static final int saltLength = 32;
+	public static final int passLength = 32;
+	public static final int stretchLength = 90000;
 
 	/**
 	 * @param args
@@ -210,11 +219,14 @@ public class AuthServer {
 	 */
 	class AuthConnectionHandler extends Thread {
 		private Socket socket;
-		private AuthManager manager;
+		private SocketAddress remoteAddress;
+		private AuthManager manager;// to be changed out for Resolver
 		// private OutputStream outputBuffer;
 		private ObjectOutput outputObject;
 		private InputStream inputBuffer;
 		private ObjectInput inputObject;
+		private String userName;
+		private byte[] seshKey;
 
 		AuthConnectionHandler(Socket socket, AuthManager manager) {
 			this.socket = socket;
@@ -227,7 +239,7 @@ public class AuthServer {
 			openSocketOutput();
 			if(recieveGreeting()){
 				try {
-					byte[] challenge = sendChallenge();
+					byte[] credentials = sendChallenge();//TODO change this to seshKey = sendCredentials
 					AuthRequest request = recieveRequest();
 					boolean operationCompleted = false;
 					if(request == null) throw new IOException("Request not recieved.");
@@ -236,27 +248,27 @@ public class AuthServer {
 						operationCompleted = manager.addUser(request.getUserName(),
 								request.getPasswordHash(), request.getRights(),
 								request.getAuthUserName(),
-								request.getAuthPasswordHash(), challenge);
+								request.getAuthPasswordHash(), credentials);
 						break;
 					case CHANGENAME:
 						operationCompleted = manager.changeUserName(
 								request.getUserName(), request.getNewUserName(),
 								request.getAuthUserName(),
-								request.getAuthPasswordHash(), challenge);
+								request.getAuthPasswordHash(), credentials);
 						break;
 					case CHANGEPASSWORD:
 						operationCompleted = manager.changePassword(
-								request.getUserName(), request.getPasswordHash(), challenge,
+								request.getUserName(), request.getPasswordHash(), credentials,
 								request.getNewPasswordHash());
 						break;
 					case CHECK:
 						operationCompleted = manager.checkUser(request.getUserName(),
-								request.getPasswordHash(), challenge);
+								request.getPasswordHash(), credentials);
 						break;
 					case REMOVE:
 						operationCompleted = manager.removeUser(request.getUserName(),
 								request.getAuthUserName(),
-								request.getAuthPasswordHash(), challenge);
+								request.getAuthPasswordHash(), credentials);
 						break;
 					}
 					AuthReply reply = new AuthReply(operationCompleted,
@@ -280,14 +292,42 @@ public class AuthServer {
 		}
 
 		private boolean recieveGreeting(){
+			boolean goodGreet = false;
+			//TODO ack username in greeting
 			try {
 				String greeting = (String) inputObject.readObject();
-				return greeting.equalsIgnoreCase(AuthServer.greeting);
+				goodGreet = greeting.equalsIgnoreCase(AuthServer.greeting);
+				if(!goodGreet)
+					return goodGreet;
+				userName = (String) inputObject.readObject();
+				return true;
 			} catch (ClassNotFoundException | IOException e) {
 				System.err.println("Probelm encountered with greeting.");
 				return false;
 			}
 			
+		}
+		private Object decryptComm(byte[] seshKey, EncryptionResult comm) throws IOException, ClassNotFoundException{
+			byte[] out = SHE.doSHE(comm.getOutput(), seshKey, comm.getIv()).getOutput();
+			ByteArrayInputStream byteInS = new ByteArrayInputStream(out);
+			ObjectInputStream objInS = new ObjectInputStream(byteInS);
+			Object reply = objInS.readObject();
+			objInS.close();
+			return reply;
+		}
+		/**
+		 * 
+		 * @return the session key for this session
+		 */
+		private byte[] sendCredentials(){
+			byte[] credentials = new byte[saltLength + passLength];
+			SecureRandom random = new SecureRandom();
+			byte[] SK = new byte[passLength];
+			random.nextBytes(SK);
+			System.arraycopy(resolverInstance.getUserSalt(userName), 0, credentials, 0, saltLength);
+			System.arraycopy(Misc.XOR(resolverInstance.getUserHash(userName), SK), 0, credentials, saltLength, passLength);
+			outputObject.writeObject(credentials);
+			return credentials;
 		}
 		
 		private byte[] sendChallenge() throws IOException{
@@ -298,7 +338,8 @@ public class AuthServer {
 		
 		private void openSocketInput() {
 			try {
-				System.out.println(socket.getRemoteSocketAddress());
+				remoteAddress = socket.getRemoteSocketAddress();
+				System.out.println(remoteAddress);
 				// inputObject = new ObjectInputStream(socket.getInputStream());
 				inputBuffer = new BufferedInputStream(socket.getInputStream());
 				inputObject = new ObjectInputStream(inputBuffer);
@@ -319,10 +360,10 @@ public class AuthServer {
 			}
 		}
 
-		private AuthRequest recieveRequest() {
-			AuthRequest request = null;
+		private Request recieveRequest() {
+			Request request = null;
 			try{
-				request = (AuthRequest) inputObject.readObject();
+				request = (Request) decryptComm(seshKey, (EncryptionResult) inputObject.readObject());
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
