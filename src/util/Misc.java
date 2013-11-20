@@ -24,7 +24,15 @@ public class Misc {
 	    //Print total available memory
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
 	}
-	
+	public static String getHexBytes(byte[] in, String space){
+		String out = "";
+		for(int i = 0; i < in.length; i++){
+			if(in[i] < 16)
+				out += "0";
+			out += Integer.toHexString(in[i]).toUpperCase() + space;
+		}
+		return out.substring(0, out.length()-1);
+	}
 	/**
 	 * Serialize an object into a byte array
 	 * @param s a Serializable object
