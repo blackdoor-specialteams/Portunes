@@ -16,8 +16,8 @@ import org.eclipse.swt.widgets.Text;
 public class AHome {
 
 	protected Shell shlPortunesAdministrator;
-	private Text text;
-	private Text text_1;
+	private Text _USuname_tbox;
+	private Text _USname_tbox;
 	private Text text_2;
 	private Text text_3;
 	private Text text_4;
@@ -62,101 +62,101 @@ public class AHome {
 		TabFolder _home_tabs = new TabFolder(shlPortunesAdministrator, SWT.NONE);
 		_home_tabs.setBounds(0, 0, 394, 351);
 		
-		TabItem tbtmSearch = new TabItem(_home_tabs, SWT.NONE);
-		tbtmSearch.setText("Search");
+		TabItem _Seach_tab = new TabItem(_home_tabs, SWT.NONE);
+		_Seach_tab.setText("Search");
 		
-		Composite composite = new Composite(_home_tabs, SWT.NONE);
-		tbtmSearch.setControl(composite);
+		Composite _Search_comp = new Composite(_home_tabs, SWT.NONE);
+		_Seach_tab.setControl(_Search_comp);
 		
-		Group grpSearchForSpecifc = new Group(composite, SWT.NONE);
-		grpSearchForSpecifc.setBounds(10, 27, 355, 96);
+		Group _UserSrch_Grp = new Group(_Search_comp, SWT.NONE);
+		_UserSrch_Grp.setBounds(10, 27, 355, 96);
 		
-		Label lblNewLabel = new Label(grpSearchForSpecifc, SWT.NONE);
-		lblNewLabel.setBounds(10, 10, 335, 15);
-		lblNewLabel.setText("You are able to search by either a username or the user's name. ");
+		Label _USInstrc_Label = new Label(_UserSrch_Grp, SWT.NONE);
+		_USInstrc_Label.setBounds(10, 10, 335, 15);
+		_USInstrc_Label.setText("You are able to search by either a username or the user's name. ");
 		
-		Label lblUsername = new Label(grpSearchForSpecifc, SWT.NONE);
-		lblUsername.setBounds(20, 41, 55, 15);
-		lblUsername.setText("Username: ");
+		Label _USuname_Label = new Label(_UserSrch_Grp, SWT.NONE);
+		_USuname_Label.setBounds(20, 41, 55, 15);
+		_USuname_Label.setText("Username: ");
 		
-		Label lblNewLabel_1 = new Label(grpSearchForSpecifc, SWT.NONE);
-		lblNewLabel_1.setBounds(20, 65, 38, 15);
-		lblNewLabel_1.setText("Name: ");
+		Label _USname_Label = new Label(_UserSrch_Grp, SWT.NONE);
+		_USname_Label.setBounds(20, 65, 38, 15);
+		_USname_Label.setText("Name: ");
 		
-		text = new Text(grpSearchForSpecifc, SWT.BORDER);
-		text.setBounds(81, 38, 248, 21);
+		_USuname_tbox = new Text(_UserSrch_Grp, SWT.BORDER);
+		_USuname_tbox.setBounds(81, 38, 248, 21);
 		
-		text_1 = new Text(grpSearchForSpecifc, SWT.BORDER);
-		text_1.setBounds(60, 65, 269, 21);
+		_USname_tbox = new Text(_UserSrch_Grp, SWT.BORDER);
+		_USname_tbox.setBounds(60, 65, 269, 21);
 		
-		Group grpSearchByAdvanced = new Group(composite, SWT.NONE);
-		grpSearchByAdvanced.setBounds(10, 155, 355, 62);
+		Group _DBSrch_Grp = new Group(_Search_comp, SWT.NONE);
+		_DBSrch_Grp.setBounds(10, 155, 355, 62);
 		
-		Button btnNewButton = new Button(grpSearchByAdvanced, SWT.NONE);
-		btnNewButton.setBounds(108, 27, 126, 25);
-		btnNewButton.setText("Show query list");
+		Button _DBquery_button = new Button(_DBSrch_Grp, SWT.NONE);
+		_DBquery_button.setBounds(108, 27, 126, 25);
+		_DBquery_button.setText("Show query list");
 		
-		Button btnSearchForUser = new Button(composite, SWT.RADIO);
-		btnSearchForUser.setBounds(10, 10, 130, 16);
-		btnSearchForUser.setText("Search For User");
+		Button _US_radio = new Button(_Search_comp, SWT.RADIO);
+		_US_radio.setBounds(10, 10, 130, 16);
+		_US_radio.setText("Search For User");
 		
-		Button btnRadioButton = new Button(composite, SWT.RADIO);
-		btnRadioButton.setBounds(10, 133, 257, 16);
-		btnRadioButton.setText("Seach database using advanced queries");
+		Button _DB_radio = new Button(_Search_comp, SWT.RADIO);
+		_DB_radio.setBounds(10, 133, 257, 16);
+		_DB_radio.setText("Seach database using advanced queries");
 		
-		Button btnNewButton_1 = new Button(composite, SWT.NONE);
+		Button btnNewButton_1 = new Button(_Search_comp, SWT.NONE);
 		btnNewButton_1.setBounds(235, 274, 130, 39);
 		btnNewButton_1.setText("Show Results");
 		
-		TabItem tbtmAddNew = new TabItem(_home_tabs, SWT.NONE);
-		tbtmAddNew.setText("Add New User");
+		TabItem _Add_tab = new TabItem(_home_tabs, SWT.NONE);
+		_Add_tab.setText("Add New User");
 		
 		Composite composite_1 = new Composite(_home_tabs, SWT.NONE);
-		tbtmAddNew.setControl(composite_1);
+		_Add_tab.setControl(composite_1);
 		
-		Group grpNewUserInformation = new Group(composite_1, SWT.NONE);
-		grpNewUserInformation.setText("New User Information");
-		grpNewUserInformation.setBounds(10, 46, 354, 153);
+		Group _NW_grp = new Group(composite_1, SWT.NONE);
+		_NW_grp.setText("New User Information");
+		_NW_grp.setBounds(10, 46, 354, 153);
 		
-		Label lblUsername_1 = new Label(grpNewUserInformation, SWT.NONE);
-		lblUsername_1.setBounds(39, 33, 63, 15);
-		lblUsername_1.setText("Username:");
+		Label _NWunname_lbl = new Label(_NW_grp, SWT.NONE);
+		_NWunname_lbl.setBounds(39, 33, 63, 15);
+		_NWunname_lbl.setText("Username:");
 		
-		Label lblName = new Label(grpNewUserInformation, SWT.NONE);
-		lblName.setBounds(39, 55, 55, 15);
-		lblName.setText("Name:");
+		Label _NWname_lbl = new Label(_NW_grp, SWT.NONE);
+		_NWname_lbl.setBounds(39, 55, 55, 15);
+		_NWname_lbl.setText("Name:");
 		
-		Label lblPassword = new Label(grpNewUserInformation, SWT.NONE);
-		lblPassword.setBounds(39, 90, 63, 15);
-		lblPassword.setText("Password:");
+		Label _NWpw_lbl = new Label(_NW_grp, SWT.NONE);
+		_NWpw_lbl.setBounds(39, 90, 63, 15);
+		_NWpw_lbl.setText("Password:");
 		
-		Label lblConfirmPassword = new Label(grpNewUserInformation, SWT.NONE);
-		lblConfirmPassword.setBounds(39, 115, 104, 15);
-		lblConfirmPassword.setText("Confirm Password:");
+		Label _NWcpw_lbl = new Label(_NW_grp, SWT.NONE);
+		_NWcpw_lbl.setBounds(39, 115, 104, 15);
+		_NWcpw_lbl.setText("Confirm Password:");
 		
-		text_2 = new Text(grpNewUserInformation, SWT.BORDER);
+		text_2 = new Text(_NW_grp, SWT.BORDER);
 		text_2.setBounds(97, 27, 210, 21);
 		
-		text_3 = new Text(grpNewUserInformation, SWT.BORDER);
+		text_3 = new Text(_NW_grp, SWT.BORDER);
 		text_3.setBounds(79, 54, 228, 21);
 		
-		text_4 = new Text(grpNewUserInformation, SWT.BORDER);
+		text_4 = new Text(_NW_grp, SWT.BORDER);
 		text_4.setBounds(97, 87, 210, 21);
 		
-		text_5 = new Text(grpNewUserInformation, SWT.BORDER);
+		text_5 = new Text(_NW_grp, SWT.BORDER);
 		text_5.setBounds(141, 112, 166, 21);
 		
-		Label lblErrorLabelRight = new Label(composite_1, SWT.NONE);
-		lblErrorLabelRight.setBounds(25, 21, 244, 15);
-		lblErrorLabelRight.setText("Error Label right here ");
+		Label _Err_label = new Label(composite_1, SWT.NONE);
+		_Err_label.setBounds(25, 21, 244, 15);
+		_Err_label.setText("Error Label right here ");
 		
-		Button btnNewButton_2 = new Button(composite_1, SWT.NONE);
-		btnNewButton_2.setBounds(247, 261, 117, 52);
-		btnNewButton_2.setText("Add User");
+		Button _add_button = new Button(composite_1, SWT.NONE);
+		_add_button.setBounds(247, 261, 117, 52);
+		_add_button.setText("Add User");
 		
-		Button btnNewButton_3 = new Button(composite_1, SWT.NONE);
-		btnNewButton_3.setBounds(10, 261, 117, 52);
-		btnNewButton_3.setText("Clear");
+		Button _clear_button = new Button(composite_1, SWT.NONE);
+		_clear_button.setBounds(10, 261, 117, 52);
+		_clear_button.setText("Clear");
 		
 		Menu _home_menu = new Menu(shlPortunesAdministrator, SWT.BAR);
 		shlPortunesAdministrator.setMenuBar(_home_menu);
