@@ -9,5 +9,23 @@ public class CHECK extends Request implements Serializable {
 		username= userName;
 		userPW = userPassword;
 	}
+	@Override
+	public void setReply(Object reply) {
+		Boolean bool = (Boolean) reply;
+		this.reply = bool.booleanValue();
+	}
+	public String getOpUserName(){
+		return username;
+	}
+	public byte[] getOpUserPW(){
+		return userPW;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString() + "\nCHECK [reply=" + reply + "]";
+	}
 
 }

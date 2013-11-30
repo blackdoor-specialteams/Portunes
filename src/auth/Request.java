@@ -5,6 +5,7 @@ package auth;
 
 import java.io.Serializable;
 import java.net.SocketAddress;
+import java.util.Arrays;
 
 /**
  * @author kAG0
@@ -26,6 +27,41 @@ public abstract class Request implements Serializable {
 	public byte[] adminPW;
 	Request(Operation operation){
 		this.operation = operation;
+	}
+	public abstract void setReply(Object reply);
+	
+	//TODO
+	//these getname/password methods should be implemented so that Resolver/server can 
+	//call them and get info without having to look at the details of the Request
+	public String getAuthUserName(){
+		if(admin){
+			return adminName;
+		}
+			return username;
+	}
+	//TODO
+	public byte[] getAuthUserPW(){
+		return null;
+	}
+	//TODO
+	public String getOpUserName(){
+		return null;
+	}
+	//TODO
+	public byte[] getOpUserPW(){
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Request [admin=" + admin + ", origin=" + origin
+				+ ", operation=" + operation + ", username=" + username
+				+ ", adminName=" + adminName + ", userPW="
+				+ Arrays.toString(userPW) + ", adminPW="
+				+ Arrays.toString(adminPW) + "]";
 	}
 	
 }
