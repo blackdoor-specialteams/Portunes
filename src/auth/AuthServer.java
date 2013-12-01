@@ -19,6 +19,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -41,7 +42,8 @@ public class AuthServer {
 	private boolean running = true;
 	//TODO put in actual DB
 	//TODO replace all authmanager stuff with nemo's Resolver(or whatever)
-	private AuthManager authManager; //replace this with a SQL db manager
+	//private AuthManager authManager; //replace this with a SQL db manager
+	private TestResolver authManager;
 	public static final String greeting = "Portumnes";
 	public static final int saltLength = 32;
 	public static final int passLength = 32;
@@ -80,21 +82,21 @@ public class AuthServer {
 	 * creates a new authentication manager with new database and default settings
 	 */
 	public void createManager() {
-		authManager = new AuthManager();
+		authManager = new TestResolver();//AuthManager();
 	}
 	/**
 	 * creates a new authentication manager with database from specified file
 	 * @param DBFile
 	 */
 	public void createManager(String DBFile) {
-		try {
-			authManager = new AuthManager(DBFile);
-		} catch (IOException e) {
-			System.err.println("specified file is corrupted or not a UserDB");
-			e.printStackTrace();
-			System.out.println("server will now quit.");
-			System.exit(-1);
-		}
+		//try {
+			authManager = new TestResolver(DBFile);
+		//} catch (IOException e) {
+//			System.err.println("specified file is corrupted or not a UserDB");
+//			e.printStackTrace();
+//			System.out.println("server will now quit.");
+//			System.exit(-1);
+//		}
 	}
 	/**
 	 * start the server
@@ -102,7 +104,7 @@ public class AuthServer {
 	 */
 	public void start() {
 		if (authManager == null) {
-			authManager = new AuthManager();
+			authManager = new TestResolver();//AuthManager();
 		}
 		CLI cli = new CLI(this);
 		cli.start();
@@ -114,14 +116,14 @@ public class AuthServer {
 	 * save userDB to a file
 	 * @param location location to save file
 	 */
-	public void save(String location) {
-		try {
-			authManager.save(location);
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			System.err.println("save location not valid, database not saved");
-		}
-	}
+//	public void save(String location) {
+//		try {
+//			authManager.save(location);
+//		} catch (IOException e) {
+//			System.out.println(e.getMessage());
+//			System.err.println("save location not valid, database not saved");
+//		}
+//	}
 
 	private void acceptConnections() {
 		Socket socket = null;
@@ -204,12 +206,14 @@ public class AuthServer {
 					server.setRunning(false);
 					keyboard.close();
 					System.exit(1);
-				} else if (input.equalsIgnoreCase("save")) {
-					System.out.println("enter location to save DB");
-					String location = keyboard.nextLine();
-					System.out.println(location);
-					server.save(location);
-				} else
+				} 
+//				else if (input.equalsIgnoreCase("save")) {
+//					System.out.println("enter location to save DB");
+//					String location = keyboard.nextLine();
+//					System.out.println(location);
+//					server.save(location);
+//				} 
+				else
 					System.out.println("Invalid Command");
 			}
 		}
@@ -223,7 +227,8 @@ public class AuthServer {
 	class AuthConnectionHandler extends Thread {
 		private Socket socket;
 		private SocketAddress remoteAddress;
-		private AuthManager manager;// to be changed out for Resolver
+		//private AuthManager manager;// to be changed out for Resolver
+		private TestResolver resolver;
 		// private OutputStream outputBuffer;
 		private ObjectOutput outputObject;
 		private InputStream inputBuffer;
@@ -231,9 +236,9 @@ public class AuthServer {
 		private String userName;
 		private byte[] seshKey;
 
-		AuthConnectionHandler(Socket socket, AuthManager manager) {
+		AuthConnectionHandler(Socket socket, TestResolver manager) {
 			this.socket = socket;
-			this.manager = manager;
+			this.resolver = manager;
 		}
 
 		public void run() {
@@ -242,40 +247,42 @@ public class AuthServer {
 			openSocketOutput();
 			if(recieveGreeting()){
 				try {
-					byte[] credentials = sendChallenge();//TODO change this to seshKey = sendCredentials
-					AuthRequest request = recieveRequest();
+					//byte[] credentials = 
+							sendCredentials();//TODO change this to seshKey = sendCredentials
+					Request request = recieveRequest();
 					boolean operationCompleted = false;
 					if(request == null) throw new IOException("Request not recieved.");
-					switch (request.getOperation()) {
-					case ADD:
-						operationCompleted = manager.addUser(request.getUserName(),
-								request.getPasswordHash(), request.getRights(),
-								request.getAuthUserName(),
-								request.getAuthPasswordHash(), credentials);
-						break;
-					case CHANGENAME:
-						operationCompleted = manager.changeUserName(
-								request.getUserName(), request.getNewUserName(),
-								request.getAuthUserName(),
-								request.getAuthPasswordHash(), credentials);
-						break;
-					case CHANGEPASSWORD:
-						operationCompleted = manager.changePassword(
-								request.getUserName(), request.getPasswordHash(), credentials,
-								request.getNewPasswordHash());
-						break;
-					case CHECK:
-						operationCompleted = manager.checkUser(request.getUserName(),
-								request.getPasswordHash(), credentials);
-						break;
-					case REMOVE:
-						operationCompleted = manager.removeUser(request.getUserName(),
-								request.getAuthUserName(),
-								request.getAuthPasswordHash(), credentials);
-						break;
-					}
-					AuthReply reply = new AuthReply(operationCompleted,
-							request.getID(), request.getOperation());
+//					switch (request.getOperation()) {
+//					case ADD:
+//						operationCompleted = manager.addUser(request.getUserName(),
+//								request.getPasswordHash(), request.getRights(),
+//								request.getAuthUserName(),
+//								request.getAuthPasswordHash(), credentials);
+//						break;
+//					case CHANGENAME:
+//						operationCompleted = manager.changeUserName(
+//								request.getUserName(), request.getNewUserName(),
+//								request.getAuthUserName(),
+//								request.getAuthPasswordHash(), credentials);
+//						break;
+//					case CHANGEPASSWORD:
+//						operationCompleted = manager.changePassword(
+//								request.getUserName(), request.getPasswordHash(), credentials,
+//								request.getNewPasswordHash());
+//						break;
+//					case CHECK:
+//						operationCompleted = manager.checkUser(request.getUserName(),
+//								request.getPasswordHash(), credentials);
+//						break;
+//					case REMOVE:
+//						operationCompleted = manager.removeUser(request.getUserName(),
+//								request.getAuthUserName(),
+//								request.getAuthPasswordHash(), credentials);
+//						break;
+//					}
+					Request reply = resolver.resolve(request);
+//					AuthReply reply = new AuthReply(operationCompleted,
+//							request.getID(), request.getOperation());
 					// openSocketOutput();
 					sendReply(reply);
 					closeSocket();
@@ -318,25 +325,29 @@ public class AuthServer {
 			objInS.close();
 			return reply;
 		}
+		
+//		private byte[] sendCredentials(){
+//			byte[] credentials = new byte[saltLength + passLength];
+//			SecureRandom random = new SecureRandom();
+//			byte[] SK = new byte[passLength];
+//			random.nextBytes(SK);
+//			System.arraycopy(resolverInstance.getUserSalt(userName), 0, credentials, 0, saltLength);
+//			System.arraycopy(Misc.XOR(resolverInstance.getUserHash(userName), SK), 0, credentials, saltLength, passLength);
+//			outputObject.writeObject(credentials);
+//			return credentials;
+//		}
 		/**
 		 * 
 		 * @return the session key for this session
 		 */
-		private byte[] sendCredentials(){
-			byte[] credentials = new byte[saltLength + passLength];
-			SecureRandom random = new SecureRandom();
-			byte[] SK = new byte[passLength];
-			random.nextBytes(SK);
-			System.arraycopy(resolverInstance.getUserSalt(userName), 0, credentials, 0, saltLength);
-			System.arraycopy(Misc.XOR(resolverInstance.getUserHash(userName), SK), 0, credentials, saltLength, passLength);
+		private byte[] sendCredentials() throws IOException{
+			seshKey = new byte[32];
+			new SecureRandom().nextBytes(seshKey);
+			byte[] credentials = new byte[saltLength+passLength];
+			System.arraycopy(resolver.getUserSalt(userName), 0, credentials, 0, saltLength);
+			System.arraycopy(Misc.XOR(seshKey, resolver.getUserHash(userName)), 0, credentials, saltLength, passLength);
 			outputObject.writeObject(credentials);
-			return credentials;
-		}
-		
-		private byte[] sendChallenge() throws IOException{
-			byte[] challenge = Hash.getSHA1(UUID.randomUUID().toString().getBytes());
-			outputObject.writeObject(challenge);
-			return challenge;
+			return seshKey;
 		}
 		
 		private void openSocketInput() {
@@ -379,15 +390,22 @@ public class AuthServer {
 			return request;
 		}
 
-		private void sendReply(AuthReply reply) {
+//		private void sendReply(AuthReply reply) {
+//			try {
+//				outputObject.writeObject(reply);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+		private void sendReply(Request reply) {
 			try {
-				outputObject.writeObject(reply);
+				outputObject.writeObject(SHE.doSHE(Misc.serialize(reply), seshKey));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-
 		private void closeSocket() throws IOException {
 			System.out.println("attempting to close conneciton from "
 					+ socket.getRemoteSocketAddress() + " on "

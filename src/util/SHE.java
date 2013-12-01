@@ -200,6 +200,20 @@ public class SHE {
 	 * identical nature of the encryption and decryption algorithms in the 
 	 * counter (CTR) mode of operation for block ciphers to use a one way hash 
 	 * function instead of a typical encryption algorithm. SHE uses SHA256 with 
+	 * a 256bit block size, and a key of at least 126 bits and a generated IV of 
+	 * 256 bits. This method operates as a block cipher, 
+	 * @param input The text to calculate, must be less that 2GB or 2^32 bytes, due to array restrictions in java.
+	 * @param key The key to use for encryption/decryption, must be at least 128 bits.
+	 * @return An EncryptionResult containing the iv and calculated text.
+	 */
+	public static  EncryptionResult doSHE(byte[] input, byte[] key){
+		return doSHE(input, key, null);
+	}
+	/**
+	 * Simple/Secure Hash Encryption encryption/decryption method which uses the 
+	 * identical nature of the encryption and decryption algorithms in the 
+	 * counter (CTR) mode of operation for block ciphers to use a one way hash 
+	 * function instead of a typical encryption algorithm. SHE uses SHA256 with 
 	 * a 256bit block size, and a key of at least 126 bits and an IV of at least 
 	 * 256 bits. This method operates as a block cipher, 
 	 * @param input The text to calculate, must be less that 2GB or 2^32 bytes, due to array restrictions in java.

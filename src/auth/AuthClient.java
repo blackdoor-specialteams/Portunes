@@ -60,162 +60,151 @@ public class AuthClient {
 		this.port = port;
 		//openSocket();
 	}
-	/**
-	 * check if there exists a user with given username and password in the database
-	 * @param userName
-	 * @param password
-	 * @return true if user exists with given username and password, else false
-	 */
-	public boolean checkUser(String userName, String password){
-		AuthRequest request = new AuthRequest(Operation.CHECK);
-		request.setUserName(userName);
-		request.setPasswordHash(Hash(password));
-		request.setIndicator(CSHI.NORMAL);
-		int id = request.getID();
-		AuthReply reply = null;
-		reply = exchange(request);
-		if(reply == null){
-			System.err.println("Reply from server not recieved.");
-			return false;
-		}
-			
-		if(reply.getId() == id){
-			return reply.isOperationCompleted();
-		}
-		else System.err.println("id of reply does not match id of sent request.");
-		return false;
-	}
 	
-	/**
-	 * change a user's password. The current password must be known.
-	 * @param userName
-	 * @param oldPassword
-	 * @param newPassword
-	 * @return true if password has been changed, else false
-	 */
-	public boolean changePassword(String userName, String oldPassword, String newPassword){
-		AuthRequest request = new AuthRequest(Operation.CHANGEPASSWORD);
-		request.setUserName(userName);
-		request.setPasswordHash(Hash(oldPassword));
-		request.setNewPasswordHash(Hash(newPassword));
-		request.setIndicator(CSHI.NORMAL);
-		int id = request.getID();
-		AuthReply reply = null;
-		reply = exchange(request);
-		if(reply == null){
-			System.err.println("Reply from server not recieved.");
-			return false;
-		}
-		if(reply.getId() == id){
-			return reply.isOperationCompleted();
-		}
-		else System.err.println("id of reply does not match id of sent request.");
-		return false;
-	}
+	//we dont Reeeeealy need the following. CJ will just compose requests in the gui
+//	/**
+//	 * check if there exists a user with given username and password in the database
+//	 * @param userName
+//	 * @param password
+//	 * @return true if user exists with given username and password, else false
+//	 */
+//	public boolean checkUser(String userName, String password){
+//		Request request = new CHECK(userName, Hash.getSHA256(password.getBytes()));
+//		request.admin = false;
+//		int id = request.getID();
+//		Request reply = null;
+//		reply = exchange(request);
+//		if(reply == null){
+//			System.err.println("Reply from server not recieved.");
+//			return false;
+//		}
+//			
+//		if(reply.getId() == id){
+//			return reply.isOperationCompleted();
+//		}
+//		else System.err.println("id of reply does not match id of sent request.");
+//		return false;
+//	}
+//	
+//	/**
+//	 * change a user's password. The current password must be known.
+//	 * @param userName
+//	 * @param oldPassword
+//	 * @param newPassword
+//	 * @return true if password has been changed, else false
+//	 */
+//	public boolean changePassword(String userName, String oldPassword, String newPassword){
+//		AuthRequest request = new AuthRequest(Operation.CHANGEPASSWORD);
+//		request.setUserName(userName);
+//		request.setPasswordHash(Hash(oldPassword));
+//		request.setNewPasswordHash(Hash(newPassword));
+//		request.setIndicator(CSHI.NORMAL);
+//		int id = request.getID();
+//		AuthReply reply = null;
+//		reply = exchange(request);
+//		if(reply == null){
+//			System.err.println("Reply from server not recieved.");
+//			return false;
+//		}
+//		if(reply.getId() == id){
+//			return reply.isOperationCompleted();
+//		}
+//		else System.err.println("id of reply does not match id of sent request.");
+//		return false;
+//	}
+//	
+//	/**
+//	 * add a user to the database under the authority of authUser
+//	 * @param userName
+//	 * @param password
+//	 * @param rights rights that the new user should have
+//	 * @param authUserName
+//	 * @param authPassword
+//	 * @return true if user has been created, else false
+//	 */
+//	public boolean addUser(String userName, String password,UserRight[] rights, String authUserName, String authPassword) {
+//		AuthRequest request = new AuthRequest(Operation.ADD);
+//		request.setUserName(userName);
+//		request.setPasswordHash(Hash(password));
+//		request.setRights(rights);
+//		request.setAuthUserName(authUserName);
+//		request.setAuthPasswordHash(Hash(authPassword));
+//		request.setIndicator(CSHI.AUTH);
+//		int id = request.getID();
+//		AuthReply reply = null;
+//		reply = exchange(request);
+//		if(reply == null){
+//			System.err.println("Reply from server not recieved.");
+//			return false;
+//		}
+//		if(reply.getId() == id){
+//			return reply.isOperationCompleted();
+//		}
+//		else System.err.println("id of reply does not match id of sent request.");
+//		return false;
+//	}
+//	
+//	/**
+//	 * Remove user with userName. only users with REMOVE rights may remove users, however users may remove themselves without remove rights.
+//	 * @param userName
+//	 * @param authUserName authUserName should be the same as userName if user wants to remove themselves
+//	 * @param authPassword
+//	 * @return true if user has been removed, else false
+//	 */
+//	public boolean removeUser(String userName, String authUserName, String authPassword) {
+//		AuthRequest request = new AuthRequest(Operation.REMOVE);
+//		request.setUserName(userName);
+//		request.setAuthUserName(authUserName);
+//		request.setAuthPasswordHash(Hash(authPassword));
+//		request.setIndicator(CSHI.AUTH);
+//		int id = request.getID();
+//		AuthReply reply = null;
+//		reply = exchange(request);
+//		if(reply == null){
+//			System.err.println("Reply from server not recieved.");
+//			return false;
+//		}
+//		if(reply.getId() == id){
+//			return reply.isOperationCompleted();
+//		}
+//		else System.err.println("id of reply does not match id of sent request.");
+//		return false;
+//	}
+//	
+//	/**
+//	 * change user's name. this also changes the key under which the user is found in the database
+//	 * @param oldUserName
+//	 * @param newUserName
+//	 * @param authUserName
+//	 * @param authPassword
+//	 * @return true if name has been changed, else false
+//	 */
+//	public boolean changeUserName(String oldUserName, String newUserName, String authUserName, String authPassword){
+//		AuthRequest request = new AuthRequest(Operation.CHANGENAME);
+//		request.setUserName(oldUserName);
+//		request.setNewUserName(newUserName);
+//		request.setAuthUserName(authUserName);
+//		request.setAuthPasswordHash(Hash(authPassword));
+//		request.setIndicator(CSHI.AUTH);
+//		int id = request.getID();
+//		AuthReply reply = null;
+//		reply = exchange(request);
+//		if(reply == null){
+//			System.err.println("Reply from server not recieved.");
+//			return false;
+//		}
+//		if(reply.getId() == id){
+//			return reply.isOperationCompleted();
+//		}
+//		else System.err.println("id of reply does not match id of sent request.");
+//		return false;
+//	}
 	
-	/**
-	 * add a user to the database under the authority of authUser
-	 * @param userName
-	 * @param password
-	 * @param rights rights that the new user should have
-	 * @param authUserName
-	 * @param authPassword
-	 * @return true if user has been created, else false
-	 */
-	public boolean addUser(String userName, String password,UserRight[] rights, String authUserName, String authPassword) {
-		AuthRequest request = new AuthRequest(Operation.ADD);
-		request.setUserName(userName);
-		request.setPasswordHash(Hash(password));
-		request.setRights(rights);
-		request.setAuthUserName(authUserName);
-		request.setAuthPasswordHash(Hash(authPassword));
-		request.setIndicator(CSHI.AUTH);
-		int id = request.getID();
-		AuthReply reply = null;
-		reply = exchange(request);
-		if(reply == null){
-			System.err.println("Reply from server not recieved.");
-			return false;
-		}
-		if(reply.getId() == id){
-			return reply.isOperationCompleted();
-		}
-		else System.err.println("id of reply does not match id of sent request.");
-		return false;
-	}
-	
-	/**
-	 * Remove user with userName. only users with REMOVE rights may remove users, however users may remove themselves without remove rights.
-	 * @param userName
-	 * @param authUserName authUserName should be the same as userName if user wants to remove themselves
-	 * @param authPassword
-	 * @return true if user has been removed, else false
-	 */
-	public boolean removeUser(String userName, String authUserName, String authPassword) {
-		AuthRequest request = new AuthRequest(Operation.REMOVE);
-		request.setUserName(userName);
-		request.setAuthUserName(authUserName);
-		request.setAuthPasswordHash(Hash(authPassword));
-		request.setIndicator(CSHI.AUTH);
-		int id = request.getID();
-		AuthReply reply = null;
-		reply = exchange(request);
-		if(reply == null){
-			System.err.println("Reply from server not recieved.");
-			return false;
-		}
-		if(reply.getId() == id){
-			return reply.isOperationCompleted();
-		}
-		else System.err.println("id of reply does not match id of sent request.");
-		return false;
-	}
-	
-	/**
-	 * change user's name. this also changes the key under which the user is found in the database
-	 * @param oldUserName
-	 * @param newUserName
-	 * @param authUserName
-	 * @param authPassword
-	 * @return true if name has been changed, else false
-	 */
-	public boolean changeUserName(String oldUserName, String newUserName, String authUserName, String authPassword){
-		AuthRequest request = new AuthRequest(Operation.CHANGENAME);
-		request.setUserName(oldUserName);
-		request.setNewUserName(newUserName);
-		request.setAuthUserName(authUserName);
-		request.setAuthPasswordHash(Hash(authPassword));
-		request.setIndicator(CSHI.AUTH);
-		int id = request.getID();
-		AuthReply reply = null;
-		reply = exchange(request);
-		if(reply == null){
-			System.err.println("Reply from server not recieved.");
-			return false;
-		}
-		if(reply.getId() == id){
-			return reply.isOperationCompleted();
-		}
-		else System.err.println("id of reply does not match id of sent request.");
-		return false;
-	}
-	
-	private void sendGreeting() throws IOException{
+	private void sendGreeting(String userName) throws IOException{
 		
 		outputObject.writeObject(greeting);
+		outputObject.writeObject(userName);
 		//TODO add username to greeting
-	}
-	
-	/**
-	 * get the given password hash salted with given salt for use with CHAP
-	 * @param salt
-	 * @return the given password hashed and salted with salt
-	 */
-	private static byte[] getSaltyHash(byte[] passwordHash, byte[] salt){
-		byte [] saltedHash = new byte[salt.length + passwordHash.length];
-		System.arraycopy(salt, 0, saltedHash, 0, salt.length);
-		System.arraycopy(passwordHash, 0, saltedHash, salt.length, passwordHash.length);
-		return Hash.getSHA1(saltedHash);
 	}
 	
 	/**
@@ -234,7 +223,7 @@ public class AuthClient {
 			return null;
 		}
 		try {
-			sendGreeting();
+			sendGreeting(request.getAuthUserName());
 			byte[] salt = null;
 			byte[] HSPSK = null;
 			byte[] HSP = null;
@@ -283,9 +272,6 @@ public class AuthClient {
 		return request;
 	}
 	
-	private byte[] Hash(String string){	
-		return Hash.getSHA1(string.getBytes());
-	}
 		
 	private void openSocketOutput() throws Exception{
 		try {

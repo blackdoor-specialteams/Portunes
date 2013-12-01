@@ -8,6 +8,7 @@ public class CHECK extends Request implements Serializable {
 		super(Operation.CHECK); //this.operation = Operation.CHECK;
 		username= userName;
 		userPW = userPassword;
+		this.admin = false;
 	}
 	@Override
 	public void setReply(Object reply) {
@@ -19,6 +20,11 @@ public class CHECK extends Request implements Serializable {
 	}
 	public byte[] getOpUserPW(){
 		return userPW;
+	}
+	public String getAuthUserName(){
+		if(admin)
+			return adminName;
+		return username;
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

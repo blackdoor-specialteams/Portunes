@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.Hash;
 import util.Watch;
 
 /**
@@ -17,11 +18,17 @@ import util.Watch;
  *
  */
 public class TestResolver {
-
+	
+	public static final String bobPW = "password";
+	public static final byte[] bobSalt = {(byte) 0xd9, (byte)0xca, (byte)0xb0, (byte)0x44, (byte)0x51, (byte)0x80, (byte)0xd5, (byte)0x18, (byte)0x9d, (byte)0x0b, (byte)0x36, (byte)0x87, (byte)0xda, (byte)0x5a, (byte)0xb7, (byte)0x2e, (byte)0xbb, (byte)0xb6, (byte)0x63, (byte)0xb3, (byte)0x15, (byte)0xc5, (byte)0xd8, (byte)0x24, (byte)0xb8, (byte)0xdc, (byte)0x09, (byte)0xe6, (byte)0x7b, (byte)0xd8, (byte)0xb2, (byte)0x40};
 	/**
 	 * 
 	 */
 	public TestResolver() {
+		// TODO Auto-generated constructor stub
+	}
+	//db should be replaced with some way to specify a database
+	public TestResolver(String db) {
 		// TODO Auto-generated constructor stub
 	}
 	/**
@@ -30,10 +37,14 @@ public class TestResolver {
 	 * @return the salt of userName, if userName DNE then return null
 	 */
 	public byte[] getUserSalt(String userName){
-		return null;//TODO
+		//if(userName.equalsIgnoreCase("bob"))
+			return bobSalt;
+		//return null;//TODO
 	}
 	
 	public byte[] getUserHash(String userName){
+		if(userName.equalsIgnoreCase("bob"))
+			return Hash.getStretchedSHA256(Hash.getSHA256("password".getBytes()), bobSalt, AuthServer.stretchLength);
 		return null; //TODO
 	}
 	/**
