@@ -48,7 +48,7 @@ public class AuthServer {
 	public static final String greeting = "Portumnes";
 	public static final int saltLength = 32;
 	public static final int passLength = 32;
-	public static final int stretchLength = 9000;
+	public static final int stretchLength = 90500;//90500 yields between 1/2s and 1s on 2.4ghz sandyBridge i7
 
 	/**
 	 * @param args
@@ -247,8 +247,19 @@ public class AuthServer {
 			openSocketInput();
 			openSocketOutput();
 			if(recieveGreeting()){
+				thing1();
+			}else{
 				try {
-					//byte[] credentials = 
+					closeSocket();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
+		private void thing1(){
+			try {
 					try {
 						sendCredentials();
 						Request request = recieveRequest();
@@ -262,17 +273,7 @@ public class AuthServer {
 					
 				} catch (IOException e) {
 					System.err.print(e);
-					//e.printStackTrace();
 				}
-			} else{
-				try {
-					closeSocket();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
 		}
 
 		private boolean recieveGreeting(){
@@ -396,7 +397,6 @@ public class AuthServer {
 				inputObject.close();
 				inputBuffer.close();
 				outputObject.close();
-				// outputBuffer.close();
 				socket.close();
 			} catch (NullPointerException e) {
 				System.err

@@ -210,17 +210,16 @@ public class AuthClient {
 	
 	/**
 	 * a simple clean method that handles all networking
-	 * @param request the request to be sent to the server
+	 * 
+	 * @param request
+	 *            the request to be sent to the server
 	 * @return returns the server's reply to request
-	 * @throws UserNotFoundException 
+	 * @throws UserNotFoundException
 	 */
 	public Request exchange(Request request) throws UserNotFoundException {
-		//Request reply = null;
-
 		try {
 			openSocketOutput();
 			openSocketInput();
-			//outputObject.writeObject(new String("message"));
 		} catch (Exception e1) {
 			return null;
 		}
@@ -232,38 +231,42 @@ public class AuthClient {
 			byte[] SK = null;
 			byte[] credentials = null;
 			Object cred = inputObject.readObject();
-			if(cred == null){
+			if (cred == null) {
 				throw new UserNotFoundException(request.getAuthUserName());
 			}
 			credentials = (byte[]) cred;
-			
-			
+
 			System.arraycopy(credentials, 0, salt, 0, saltLength);
-			
+
 			System.arraycopy(credentials, saltLength, HSPSK, 0, passLength);
-			
-			if(request.admin){
-				HSP = Hash.getStretchedSHA256(request.adminPW, salt, stretchLength);
-			}
-			else HSP = Hash.getStretchedSHA256(request.userPW, salt, stretchLength);
+
+			if (request.admin) {
+				HSP = Hash.getStretchedSHA256(request.adminPW, salt,
+						stretchLength);
+			} else
+				HSP = Hash.getStretchedSHA256(request.userPW, salt,
+						stretchLength);
 			SK = Misc.XOR(HSP, HSPSK);
-			//switch(request.getIndicator()){
-			//case AUTH:
-				//request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(), credentials));
-			//	break;
-			//case NORMAL:
-			//	request.setPasswordHash(getSaltyHash(request.getPasswordHash(), credentials));
-			//	break;
-			//}
-			
-			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK, null));//send encrypted request
-			
-			//sendRequest(request);
-//			try {
-//				openSocketInput();
-//			} catch (Exception e) {
-//				return null;
-//			}
+			// switch(request.getIndicator()){
+			// case AUTH:
+			// request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(),
+			// credentials));
+			// break;
+			// case NORMAL:
+			// request.setPasswordHash(getSaltyHash(request.getPasswordHash(),
+			// credentials));
+			// break;
+			// }
+
+			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK,
+					null));// send encrypted request
+
+			// sendRequest(request);
+			// try {
+			// openSocketInput();
+			// } catch (Exception e) {
+			// return null;
+			// }
 			request = reciveReply(SK);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -334,7 +337,6 @@ public class AuthClient {
 			inputObject.close();
 			inputBuffer.close();
 			outputObject.close();
-			//outputBuffer.close();
 			socket.close();
 		}catch(NullPointerException e){
 			System.err.println("Couldn't close connections. Was the connection reset?");
