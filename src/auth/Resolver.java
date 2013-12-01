@@ -24,7 +24,7 @@ public class Resolver {
 		return null;//TODO
 	}
 	
-	public byte[] getUserHash(String userName){
+	public byte[] getUserHash(String userName) throws UserNotFoundException{
 		return null; //TODO
 	}
 	/**
@@ -33,7 +33,7 @@ public class Resolver {
 	 * @param request the request to handle
 	 * @return same as request but with the reply data member appropriately filled.
 	 */
-	public Request resolve(Request request){
+	public Request resolve(Request request) throws UserNotFoundException{
 		switch(request.operation){
 			case ADD:
 				
@@ -57,5 +57,21 @@ public class Resolver {
 		}
 		return request;
 	}
-
+	
+	/**
+	 * note: this exception should only be thrown as part of the authentication process
+	 * when handling requests like CHECK the response field of the request should just be null
+	 * @author kAG0
+	 *
+	 */
+	public static class UserNotFoundException extends Exception{
+		private String username;
+		UserNotFoundException(String userName){
+			super(userName +" not found in database.");
+			username = userName;
+		}		
+		public String getUserName(){
+			return username;
+		}
+	}
 }

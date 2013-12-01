@@ -24,6 +24,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import auth.AuthRequest.Operation;
+import auth.Resolver.UserNotFoundException;
 import util.Hash;
 import util.Misc;
 import util.SHE;
@@ -47,7 +48,7 @@ public class AuthServer {
 	public static final String greeting = "Portumnes";
 	public static final int saltLength = 32;
 	public static final int passLength = 32;
-	public static final int stretchLength = 90000;
+	public static final int stretchLength = 9000;
 
 	/**
 	 * @param args
@@ -248,44 +249,17 @@ public class AuthServer {
 			if(recieveGreeting()){
 				try {
 					//byte[] credentials = 
-							sendCredentials();//TODO change this to seshKey = sendCredentials
-					Request request = recieveRequest();
-					boolean operationCompleted = false;
-					if(request == null) throw new IOException("Request not recieved.");
-//					switch (request.getOperation()) {
-//					case ADD:
-//						operationCompleted = manager.addUser(request.getUserName(),
-//								request.getPasswordHash(), request.getRights(),
-//								request.getAuthUserName(),
-//								request.getAuthPasswordHash(), credentials);
-//						break;
-//					case CHANGENAME:
-//						operationCompleted = manager.changeUserName(
-//								request.getUserName(), request.getNewUserName(),
-//								request.getAuthUserName(),
-//								request.getAuthPasswordHash(), credentials);
-//						break;
-//					case CHANGEPASSWORD:
-//						operationCompleted = manager.changePassword(
-//								request.getUserName(), request.getPasswordHash(), credentials,
-//								request.getNewPasswordHash());
-//						break;
-//					case CHECK:
-//						operationCompleted = manager.checkUser(request.getUserName(),
-//								request.getPasswordHash(), credentials);
-//						break;
-//					case REMOVE:
-//						operationCompleted = manager.removeUser(request.getUserName(),
-//								request.getAuthUserName(),
-//								request.getAuthPasswordHash(), credentials);
-//						break;
-//					}
-					Request reply = resolver.resolve(request);
-//					AuthReply reply = new AuthReply(operationCompleted,
-//							request.getID(), request.getOperation());
-					// openSocketOutput();
-					sendReply(reply);
-					closeSocket();
+					try {
+						sendCredentials();
+						Request request = recieveRequest();
+						if(request == null) throw new IOException("Request not recieved.");
+							Request reply = resolver.resolve(request);
+							sendReply(reply);
+							closeSocket();
+					} catch (UserNotFoundException e) {
+						System.err.println("Authentication on authority of " + e.getUserName() + " failed.");
+						}			
+					
 				} catch (IOException e) {
 					System.err.print(e);
 					//e.printStackTrace();
@@ -306,10 +280,11 @@ public class AuthServer {
 			//TODO ack username in greeting
 			try {
 				String greeting = (String) inputObject.readObject();
-				goodGreet = greeting.equalsIgnoreCase(AuthServer.greeting);
+				goodGreet = greeting.contains(AuthServer.greeting); //.equalsIgnoreCase(AuthServer.greeting);
 				if(!goodGreet)
 					return goodGreet;
-				userName = (String) inputObject.readObject();
+				userName = greeting.replace(AuthServer.greeting, "");
+				//userName = (String) inputObject.readObject();
 				return true;
 			} catch (ClassNotFoundException | IOException e) {
 				System.err.println("Probelm encountered with greeting.");
@@ -339,13 +314,24 @@ public class AuthServer {
 		/**
 		 * 
 		 * @return the session key for this session
+		 * @throws UserNotFoundException 
 		 */
-		private byte[] sendCredentials() throws IOException{
+		private byte[] sendCredentials() throws IOException, UserNotFoundException{
 			seshKey = new byte[32];
 			new SecureRandom().nextBytes(seshKey);
 			byte[] credentials = new byte[saltLength+passLength];
-			System.arraycopy(resolver.getUserSalt(userName), 0, credentials, 0, saltLength);
-			System.arraycopy(Misc.XOR(seshKey, resolver.getUserHash(userName)), 0, credentials, saltLength, passLength);
+			byte[] uSalt;
+			byte[] uHash;
+			try {
+				uSalt = resolver.getUserSalt(userName);
+				uHash = resolver.getUserHash(userName);
+			} catch (UserNotFoundException e) {
+				e.printStackTrace();
+				outputObject.writeObject(null);
+				throw new UserNotFoundException(e.getUserName());
+			}
+			System.arraycopy(uSalt, 0, credentials, 0, saltLength);
+			System.arraycopy(Misc.XOR(seshKey, uHash), 0, credentials, saltLength, passLength);
 			outputObject.writeObject(credentials);
 			return seshKey;
 		}
@@ -376,16 +362,12 @@ public class AuthServer {
 
 		private Request recieveRequest() {
 			Request request = null;
+			EncryptionResult in = null;
 			try{
-				request = (Request) decryptComm(seshKey, (EncryptionResult) inputObject.readObject());
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch(SocketException e2){
+				in = (EncryptionResult) inputObject.readObject();
+				request = (Request) decryptComm(seshKey, in);
+			}catch(ClassNotFoundException | IOException e2){
 				System.err.println(e2);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			return request;
 		}

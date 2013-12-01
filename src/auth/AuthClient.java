@@ -25,6 +25,7 @@ import util.Crypto.EncryptionResult;
 import util.Hash;
 import util.Misc;
 import util.SHE;
+import auth.Resolver.UserNotFoundException;
 
 /**
  * @author kAG0
@@ -202,8 +203,8 @@ public class AuthClient {
 	
 	private void sendGreeting(String userName) throws IOException{
 		
-		outputObject.writeObject(greeting);
-		outputObject.writeObject(userName);
+		outputObject.writeObject(greeting+userName);
+		//outputObject.writeObject(userName);
 		//TODO add username to greeting
 	}
 	
@@ -211,8 +212,9 @@ public class AuthClient {
 	 * a simple clean method that handles all networking
 	 * @param request the request to be sent to the server
 	 * @return returns the server's reply to request
+	 * @throws UserNotFoundException 
 	 */
-	public Request exchange(Request request) {
+	public Request exchange(Request request) throws UserNotFoundException {
 		//Request reply = null;
 
 		try {
@@ -224,12 +226,17 @@ public class AuthClient {
 		}
 		try {
 			sendGreeting(request.getAuthUserName());
-			byte[] salt = null;
-			byte[] HSPSK = null;
+			byte[] salt = new byte[saltLength];
+			byte[] HSPSK = new byte[passLength];
 			byte[] HSP = null;
 			byte[] SK = null;
 			byte[] credentials = null;
-			credentials = (byte[]) inputObject.readObject();
+			Object cred = inputObject.readObject();
+			if(cred == null){
+				throw new UserNotFoundException(request.getAuthUserName());
+			}
+			credentials = (byte[]) cred;
+			
 			
 			System.arraycopy(credentials, 0, salt, 0, saltLength);
 			

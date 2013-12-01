@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import auth.Resolver.UserNotFoundException;
+
 import util.Hash;
 import util.Watch;
 
@@ -36,16 +38,16 @@ public class TestResolver {
 	 * @param userName
 	 * @return the salt of userName, if userName DNE then return null
 	 */
-	public byte[] getUserSalt(String userName){
-		//if(userName.equalsIgnoreCase("bob"))
+	public byte[] getUserSalt(String userName) throws UserNotFoundException{
+		if(userName.equalsIgnoreCase("bob"))
 			return bobSalt;
-		//return null;//TODO
+		throw new UserNotFoundException(userName);//TODO
 	}
 	
-	public byte[] getUserHash(String userName){
+	public byte[] getUserHash(String userName) throws UserNotFoundException{
 		if(userName.equalsIgnoreCase("bob"))
 			return Hash.getStretchedSHA256(Hash.getSHA256("password".getBytes()), bobSalt, AuthServer.stretchLength);
-		return null; //TODO
+		throw new UserNotFoundException(userName); //TODO
 	}
 	/**
 	 * parses request and returns a Request that is the same as request but with
