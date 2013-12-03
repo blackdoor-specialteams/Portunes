@@ -16,19 +16,6 @@ public class Alogin {
 	private Text text_1;
 
 	/**
-	 * Launch the application.
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-			Alogin window = new Alogin();
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Open the window.
 	 */
 	public void open() {
@@ -45,20 +32,21 @@ public class Alogin {
 
 	/**
 	 * Create contents of the window.
+	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
 		Alogin = new Shell();
-		Alogin.setSize(383, 204);
+		Alogin.setSize(354, 183);
 		Alogin.setText("Portunes | Administer Login");
 		
 		Composite composite = new Composite(Alogin, SWT.NONE);
-		composite.setBounds(0, 0, 367, 165);
+		composite.setBounds(0, 0, 348, 155);
 		
-		Group grpEnterAdminInformation = new Group(composite, SWT.NONE);
-		grpEnterAdminInformation.setBounds(10, 0, 348, 155);
+		Group grpEnterAdminInformation = new Group(Alogin, SWT.NONE);
+		grpEnterAdminInformation.setBounds(0, 0, 348, 155);
 		
 		Label lblAdministrator = new Label(grpEnterAdminInformation, SWT.NONE);
-		lblAdministrator.setBounds(22, 36, 82, 15);
+		lblAdministrator.setBounds(22, 36, 73, 15);
 		lblAdministrator.setText("Administrator:");
 		
 		Label lblPassword = new Label(grpEnterAdminInformation, SWT.NONE);

@@ -56,11 +56,11 @@ public class AHome {
 	 */
 	protected void createContents() {
 		shlPortunesAdministrator = new Shell();
-		shlPortunesAdministrator.setSize(393, 410);
+		shlPortunesAdministrator.setSize(389, 404);
 		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 		
 		TabFolder _home_tabs = new TabFolder(shlPortunesAdministrator, SWT.NONE);
-		_home_tabs.setBounds(0, 0, 394, 351);
+		_home_tabs.setBounds(0, 10, 381, 342);
 		
 		TabItem _Seach_tab = new TabItem(_home_tabs, SWT.NONE);
 		_Seach_tab.setText("Search");
@@ -119,19 +119,19 @@ public class AHome {
 		_NW_grp.setBounds(10, 46, 354, 153);
 		
 		Label _NWunname_lbl = new Label(_NW_grp, SWT.NONE);
-		_NWunname_lbl.setBounds(39, 33, 63, 15);
+		_NWunname_lbl.setBounds(39, 33, 55, 15);
 		_NWunname_lbl.setText("Username:");
 		
 		Label _NWname_lbl = new Label(_NW_grp, SWT.NONE);
-		_NWname_lbl.setBounds(39, 55, 55, 15);
+		_NWname_lbl.setBounds(39, 55, 34, 15);
 		_NWname_lbl.setText("Name:");
 		
 		Label _NWpw_lbl = new Label(_NW_grp, SWT.NONE);
-		_NWpw_lbl.setBounds(39, 90, 63, 15);
+		_NWpw_lbl.setBounds(39, 90, 55, 15);
 		_NWpw_lbl.setText("Password:");
 		
 		Label _NWcpw_lbl = new Label(_NW_grp, SWT.NONE);
-		_NWcpw_lbl.setBounds(39, 115, 104, 15);
+		_NWcpw_lbl.setBounds(39, 115, 90, 15);
 		_NWcpw_lbl.setText("Confirm Password:");
 		
 		text_2 = new Text(_NW_grp, SWT.BORDER);
@@ -144,7 +144,7 @@ public class AHome {
 		text_4.setBounds(97, 87, 210, 21);
 		
 		text_5 = new Text(_NW_grp, SWT.BORDER);
-		text_5.setBounds(141, 112, 166, 21);
+		text_5.setBounds(132, 112, 175, 21);
 		
 		Label _Err_label = new Label(composite_1, SWT.NONE);
 		_Err_label.setBounds(25, 21, 244, 15);

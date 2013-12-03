@@ -31,24 +31,25 @@ import util.SHE;
 import util.Crypto.EncryptionResult;
 
 /**
- * @author kAG0
- * Server which communicates with AuthClient by giving a session key to client 
- * and receiving/replying to client request with encrypted messages.
- * Each connection is opened in a new thread and each thread handles requests
- * by talking to a SQL db.
+ * @author kAG0 Server which communicates with AuthClient by giving a session
+ *         key to client and receiving/replying to client request with encrypted
+ *         messages. Each connection is opened in a new thread and each thread
+ *         handles requests by talking to a SQL db.
  */
 public class AuthServer {
 	private int port = 1234;
 	private ServerSocket serverSocket;
 	private boolean running = true;
-	//TODO put in actual DB
-	//TODO replace all authmanager stuff with nemo's Resolver(or whatever)
-	//private AuthManager authManager; //replace this with a SQL db manager
+	// TODO put in actual DB
+	// TODO replace all authmanager stuff with nemo's Resolver(or whatever)
+	// private AuthManager authManager; //replace this with a SQL db manager
 	private TestResolver authManager;
 	public static final String greeting = "Portumnes";
 	public static final int saltLength = 32;
 	public static final int passLength = 32;
-	public static final int stretchLength = 90500;//90500 yields between 1/2s and 1s on 2.4ghz sandyBridge i7
+	public static final int stretchLength = 90500;// 90500 yields between 1/2s
+													// and 1s on 2.4ghz
+													// sandyBridge i7
 
 	/**
 	 * @param args
@@ -62,13 +63,12 @@ public class AuthServer {
 				server.setPort(Integer.parseInt(args[++i]));
 			} else if (args[i].equalsIgnoreCase("-db")) {
 				server.createManager(args[++i]);
-			} else if(args[i].equalsIgnoreCase("-help")){
-				System.out.println(
-"	-db <database>	set database for the server to reference.");
-				System.out.println(
-"	-port <port number>	");
-				System.out.println(
-"					set local port for the server to listen on.");
+			} else if (args[i].equalsIgnoreCase("-help")) {
+				System.out
+						.println("	-db <database>	set database for the server to reference.");
+				System.out.println("	-port <port number>	");
+				System.out
+						.println("					set local port for the server to listen on.");
 			} else
 				System.err.println("invalid argument:" + args[i]);
 		}
@@ -79,52 +79,59 @@ public class AuthServer {
 
 	AuthServer() {
 	}
+
 	/**
-	 * creates a new authentication manager with new database and default settings
+	 * creates a new authentication manager with new database and default
+	 * settings
 	 */
 	public void createManager() {
-		authManager = new TestResolver();//AuthManager();
+		authManager = new TestResolver();// AuthManager();
 	}
+
 	/**
 	 * creates a new authentication manager with database from specified file
+	 * 
 	 * @param DBFile
 	 */
 	public void createManager(String DBFile) {
-		//try {
-			authManager = new TestResolver(DBFile);
-		//} catch (IOException e) {
-//			System.err.println("specified file is corrupted or not a UserDB");
-//			e.printStackTrace();
-//			System.out.println("server will now quit.");
-//			System.exit(-1);
-//		}
+		// try {
+		authManager = new TestResolver(DBFile);
+		// } catch (IOException e) {
+		// System.err.println("specified file is corrupted or not a UserDB");
+		// e.printStackTrace();
+		// System.out.println("server will now quit.");
+		// System.exit(-1);
+		// }
 	}
+
 	/**
-	 * start the server
-	 * will listen on port 1234 if a port has not been specified already
+	 * start the server will listen on port 1234 if a port has not been
+	 * specified already
 	 */
 	public void start() {
 		if (authManager == null) {
-			authManager = new TestResolver();//AuthManager();
+			authManager = new TestResolver();// AuthManager();
 		}
 		CLI cli = new CLI(this);
 		cli.start();
 		listen(port);
 		acceptConnections();
 	}
-	
+
 	/**
 	 * save userDB to a file
-	 * @param location location to save file
+	 * 
+	 * @param location
+	 *            location to save file
 	 */
-//	public void save(String location) {
-//		try {
-//			authManager.save(location);
-//		} catch (IOException e) {
-//			System.out.println(e.getMessage());
-//			System.err.println("save location not valid, database not saved");
-//		}
-//	}
+	// public void save(String location) {
+	// try {
+	// authManager.save(location);
+	// } catch (IOException e) {
+	// System.out.println(e.getMessage());
+	// System.err.println("save location not valid, database not saved");
+	// }
+	// }
 
 	private void acceptConnections() {
 		Socket socket = null;
@@ -185,10 +192,12 @@ public class AuthServer {
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
+
 	/**
 	 * a command line interface for the server, supports save and exit commands
+	 * 
 	 * @author kAG0
-	 *
+	 * 
 	 */
 	class CLI extends Thread {
 		AuthServer server;
@@ -207,28 +216,29 @@ public class AuthServer {
 					server.setRunning(false);
 					keyboard.close();
 					System.exit(1);
-				} 
-//				else if (input.equalsIgnoreCase("save")) {
-//					System.out.println("enter location to save DB");
-//					String location = keyboard.nextLine();
-//					System.out.println(location);
-//					server.save(location);
-//				} 
+				}
+				// else if (input.equalsIgnoreCase("save")) {
+				// System.out.println("enter location to save DB");
+				// String location = keyboard.nextLine();
+				// System.out.println(location);
+				// server.save(location);
+				// }
 				else
 					System.out.println("Invalid Command");
 			}
 		}
 	}
-	
+
 	/**
 	 * a multi-threaded connection handler for incoming connections
+	 * 
 	 * @author kAG0
-	 *
+	 * 
 	 */
 	class AuthConnectionHandler extends Thread {
 		private Socket socket;
 		private SocketAddress remoteAddress;
-		//private AuthManager manager;// to be changed out for Resolver
+		// private AuthManager manager;// to be changed out for Resolver
 		private TestResolver resolver;
 		// private OutputStream outputBuffer;
 		private ObjectOutput outputObject;
@@ -243,12 +253,12 @@ public class AuthServer {
 		}
 
 		public void run() {
-			//System.out.println("herp derp, I should reply");
+			// System.out.println("herp derp, I should reply");
 			openSocketInput();
 			openSocketOutput();
-			if(recieveGreeting()){
+			if (recieveGreeting()) {
 				thing1();
-			}else{
+			} else {
 				try {
 					closeSocket();
 				} catch (IOException e) {
@@ -258,69 +268,78 @@ public class AuthServer {
 			}
 
 		}
-		private void thing1(){
+
+		private void thing1() {
 			try {
-					try {
-						sendCredentials();
-						Request request = recieveRequest();
-						if(request == null) throw new IOException("Request not recieved.");
-							Request reply = resolver.resolve(request);
-							sendReply(reply);
-							closeSocket();
-					} catch (UserNotFoundException e) {
-						System.err.println("Authentication on authority of " + e.getUserName() + " failed.");
-						}			
-					
-				} catch (IOException e) {
-					System.err.print(e);
+				try {
+					sendCredentials();
+					Request request = recieveRequest();
+					if (request == null)
+						throw new IOException("Request not recieved.");
+					Request reply = resolver.resolve(request);
+					sendReply(reply);
+					closeSocket();
+				} catch (UserNotFoundException e) {
+					System.err.println("Authentication on authority of "
+							+ e.getUserName() + " failed.");
 				}
+
+			} catch (IOException e) {
+				System.err.print(e);
+			}
 		}
 
-		private boolean recieveGreeting(){
+		private boolean recieveGreeting() {
 			boolean goodGreet = false;
-			//TODO ack username in greeting
+			// TODO ack username in greeting
 			try {
 				String greeting = (String) inputObject.readObject();
-				goodGreet = greeting.contains(AuthServer.greeting); //.equalsIgnoreCase(AuthServer.greeting);
-				if(!goodGreet)
+				goodGreet = greeting.contains(AuthServer.greeting); // .equalsIgnoreCase(AuthServer.greeting);
+				if (!goodGreet)
 					return goodGreet;
 				userName = greeting.replace(AuthServer.greeting, "");
-				//userName = (String) inputObject.readObject();
+				// userName = (String) inputObject.readObject();
 				return true;
 			} catch (ClassNotFoundException | IOException e) {
 				System.err.println("Probelm encountered with greeting.");
 				return false;
 			}
-			
+
 		}
-		private Object decryptComm(byte[] seshKey, EncryptionResult comm) throws IOException, ClassNotFoundException{
-			byte[] out = SHE.doSHE(comm.getOutput(), seshKey, comm.getIv()).getOutput();
+
+		private Object decryptComm(byte[] seshKey, EncryptionResult comm)
+				throws IOException, ClassNotFoundException {
+			byte[] out = SHE.doSHE(comm.getOutput(), seshKey, comm.getIv())
+					.getOutput();
 			ByteArrayInputStream byteInS = new ByteArrayInputStream(out);
 			ObjectInputStream objInS = new ObjectInputStream(byteInS);
 			Object reply = objInS.readObject();
 			objInS.close();
 			return reply;
 		}
-		
-//		private byte[] sendCredentials(){
-//			byte[] credentials = new byte[saltLength + passLength];
-//			SecureRandom random = new SecureRandom();
-//			byte[] SK = new byte[passLength];
-//			random.nextBytes(SK);
-//			System.arraycopy(resolverInstance.getUserSalt(userName), 0, credentials, 0, saltLength);
-//			System.arraycopy(Misc.XOR(resolverInstance.getUserHash(userName), SK), 0, credentials, saltLength, passLength);
-//			outputObject.writeObject(credentials);
-//			return credentials;
-//		}
+
+		// private byte[] sendCredentials(){
+		// byte[] credentials = new byte[saltLength + passLength];
+		// SecureRandom random = new SecureRandom();
+		// byte[] SK = new byte[passLength];
+		// random.nextBytes(SK);
+		// System.arraycopy(resolverInstance.getUserSalt(userName), 0,
+		// credentials, 0, saltLength);
+		// System.arraycopy(Misc.XOR(resolverInstance.getUserHash(userName),
+		// SK), 0, credentials, saltLength, passLength);
+		// outputObject.writeObject(credentials);
+		// return credentials;
+		// }
 		/**
 		 * 
 		 * @return the session key for this session
-		 * @throws UserNotFoundException 
+		 * @throws UserNotFoundException
 		 */
-		private byte[] sendCredentials() throws IOException, UserNotFoundException{
+		private byte[] sendCredentials() throws IOException,
+				UserNotFoundException {
 			seshKey = new byte[32];
 			new SecureRandom().nextBytes(seshKey);
-			byte[] credentials = new byte[saltLength+passLength];
+			byte[] credentials = new byte[saltLength + passLength];
 			byte[] uSalt;
 			byte[] uHash;
 			try {
@@ -332,11 +351,12 @@ public class AuthServer {
 				throw new UserNotFoundException(e.getUserName());
 			}
 			System.arraycopy(uSalt, 0, credentials, 0, saltLength);
-			System.arraycopy(Misc.XOR(seshKey, uHash), 0, credentials, saltLength, passLength);
+			System.arraycopy(Misc.XOR(seshKey, uHash), 0, credentials,
+					saltLength, passLength);
 			outputObject.writeObject(credentials);
 			return seshKey;
 		}
-		
+
 		private void openSocketInput() {
 			try {
 				remoteAddress = socket.getRemoteSocketAddress();
@@ -364,31 +384,33 @@ public class AuthServer {
 		private Request recieveRequest() {
 			Request request = null;
 			EncryptionResult in = null;
-			try{
+			try {
 				in = (EncryptionResult) inputObject.readObject();
 				request = (Request) decryptComm(seshKey, in);
-			}catch(ClassNotFoundException | IOException e2){
+			} catch (ClassNotFoundException | IOException e2) {
 				System.err.println(e2);
 			}
 			return request;
 		}
 
-//		private void sendReply(AuthReply reply) {
-//			try {
-//				outputObject.writeObject(reply);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+		// private void sendReply(AuthReply reply) {
+		// try {
+		// outputObject.writeObject(reply);
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
 		private void sendReply(Request reply) {
 			try {
-				outputObject.writeObject(SHE.doSHE(Misc.serialize(reply), seshKey));
+				outputObject.writeObject(SHE.doSHE(Misc.serialize(reply),
+						seshKey));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+
 		private void closeSocket() throws IOException {
 			System.out.println("attempting to close conneciton from "
 					+ socket.getRemoteSocketAddress() + " on "
