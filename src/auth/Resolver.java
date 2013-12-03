@@ -3,6 +3,10 @@
  */
 package auth;
 
+import java.util.Arrays;
+
+import util.Hash;
+
 /**
  * @author kAG0
  *
@@ -56,6 +60,23 @@ public class Resolver {
 				break;
 		}
 		return request;
+	}
+	
+	private boolean isValidUser(String userName, byte[] password){
+		if( /* userName is in db*/ ){
+			byte[] salt;  //TODO get salt for userName from db
+			byte[] storedPW;  //TODO get saved password for userName from db	
+			return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
+		}
+		return false;
+	}
+	
+	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
+		if( /* userName is in db */ && isValidUser(adminName, adminPW) ){
+			if( /* adminName is set as an admin of userName in db */)
+				return true;
+		}
+		return false;
 	}
 	
 	/**
