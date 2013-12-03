@@ -12,7 +12,7 @@ public class Test {
 		Request req = new CHECK("Bob", Hash.getSHA256("password".getBytes()));
 		StopWatch time = new StopWatch(true);
 		Request rep = client.exchange(req);
-		System.out.println(time.checkMS());
+		System.out.println("exchange time: " + time.checkMS() + "ms");
 		System.out.println(rep);
 	}
 

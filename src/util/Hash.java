@@ -98,7 +98,7 @@ public class Hash {
 		}
 		long endTime = System.nanoTime();
 		long duration = endTime - startTime;
-		System.out.println(duration);
+		//System.out.println(duration);
 		return input;
 	}
 
