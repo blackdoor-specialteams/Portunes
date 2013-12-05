@@ -76,6 +76,8 @@ public class Resolver {
 			if( /* adminName is set as an admin of userName in db */)
 				return true;
 		}
+		//if adminname is and admin of a user who is an admin of userName return true
+		// potential exemplary query here
 		return false;
 	}
 	
