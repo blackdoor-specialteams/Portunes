@@ -56,7 +56,7 @@ public class AuthClient {
 //		inputObject = null;
 //	}
 	
-	AuthClient(String server, int port){
+	public AuthClient(String server, int port){
 		this.server = server;
 		this.port = port;
 		//openSocket();
