@@ -21,7 +21,15 @@ public class Resolver {
 	private static final String serverAddress = "localhost";
 	private static final int port = 1234;
 	private static final String database = "database";
-
+	/**
+	 * notes:
+	 * working with IPv4 addresses in mySQL:
+	 * 	store ip's as unsigned 4 byte int's
+	 * 	use the mySQL built in functions INET_ATON() and INET_NTOA() in your queries
+	 * 	ATON converts things from the form '192.168.1.1' to an integer
+	 * 	NTOA converts from an integer to the above form.
+	 *
+	 */
 	/**
 	 * 
 	 */
