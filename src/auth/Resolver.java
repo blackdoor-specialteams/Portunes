@@ -3,6 +3,9 @@
  */
 package auth;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import util.Hash;
@@ -12,6 +15,10 @@ import util.Hash;
  *
  */
 public class Resolver {
+	private Connection connection = null;
+	private static final String serverAddress = "localhost";
+	private static final int port = 1234;
+	private static final String database = "database";
 
 	/**
 	 * 
@@ -19,6 +26,11 @@ public class Resolver {
 	public Resolver() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	private Connection getConnection(String sqlUserName, String sqlUserPassword) throws SQLException{
+		return DriverManager.getConnection("jdbc:mysql://" + serverAddress + ":" + port + "/" + database, sqlUserName, sqlUserPassword);
+	}
+	
 	/**
 	 * 
 	 * @param userName
