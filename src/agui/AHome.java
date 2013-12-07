@@ -56,11 +56,11 @@ public class AHome {
 	 */
 	protected void createContents() {
 		shlPortunesAdministrator = new Shell();
-		shlPortunesAdministrator.setSize(389, 404);
+		shlPortunesAdministrator.setSize(388, 411);
 		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 		
 		TabFolder _home_tabs = new TabFolder(shlPortunesAdministrator, SWT.NONE);
-		_home_tabs.setBounds(0, 10, 381, 342);
+		_home_tabs.setBounds(0, 10, 373, 342);
 		
 		TabItem _Seach_tab = new TabItem(_home_tabs, SWT.NONE);
 		_Seach_tab.setText("Search");
@@ -105,7 +105,7 @@ public class AHome {
 		_DB_radio.setText("Seach database using advanced queries");
 		
 		Button btnNewButton_1 = new Button(_Search_comp, SWT.NONE);
-		btnNewButton_1.setBounds(235, 274, 130, 39);
+		btnNewButton_1.setBounds(225, 265, 130, 39);
 		btnNewButton_1.setText("Show Results");
 		
 		TabItem _Add_tab = new TabItem(_home_tabs, SWT.NONE);
