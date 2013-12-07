@@ -96,8 +96,8 @@ public class Hash {
 			input = shuffle(input);
 			input = getSHA256(Misc.XOR(input, salt));
 		}
-		long endTime = System.nanoTime();
-		long duration = endTime - startTime;
+		//long endTime = System.nanoTime();
+		//long duration = endTime - startTime;
 		//System.out.println(duration);
 		return input;
 	}

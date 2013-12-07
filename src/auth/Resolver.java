@@ -3,6 +3,7 @@
  */
 package auth;
 
+import java.net.SocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -72,6 +73,10 @@ public class Resolver {
 				break;
 		}
 		return request;
+	}
+	
+	public boolean recordLogin(SocketAddress origin, String userName) {
+		
 	}
 	
 	private boolean isValidUser(String userName, byte[] password){
