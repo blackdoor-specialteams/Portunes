@@ -4,6 +4,7 @@
 package auth;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
 
@@ -19,7 +20,7 @@ public abstract class Request implements Serializable {
 		ADD, REMOVE, CHECK, CHANGENAME, CHANGEPASSWORD, GETINFO, SETADMIN, LIST, HISTORY
 	}
 	public boolean admin;
-	public SocketAddress origin;
+	public InetAddress origin;
 	public Operation operation;
 	public String username;
 	public String adminName;

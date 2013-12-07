@@ -3,6 +3,7 @@
  */
 package auth;
 
+import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -75,7 +76,7 @@ public class Resolver {
 		return request;
 	}
 	
-	public boolean recordLogin(SocketAddress origin, String userName) {
+	public boolean recordLogin(InetAddress origin, String userName) {
 		
 	}
 	

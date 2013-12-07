@@ -276,7 +276,7 @@ public class AuthServer {
 					Request request = recieveRequest();
 					if (request == null)
 						throw new IOException("Request not recieved.");
-					request.origin = remoteAddress;
+					request.origin = socket.getInetAddress();
 					Request reply = resolver.resolve(request);
 					sendReply(reply);
 					closeSocket();
