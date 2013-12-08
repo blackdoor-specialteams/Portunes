@@ -26,12 +26,16 @@ public class Misc {
 	}
 	public static String getHexBytes(byte[] in, String space){
 		String out = "";
+		int tmp;
 		for(int i = 0; i < in.length; i++){
-			if(in[i] < 16)
+			if(in[i] < 0)
+				tmp = Math.abs(in[i]) + 127;
+			else tmp = in[i];
+			if(tmp < 16)
 				out += "0";
-			out += Integer.toHexString(in[i]).toUpperCase() + space;
+			out += Integer.toHexString(tmp).toUpperCase() + space;
 		}
-		return out.substring(0, out.length()-1);
+		return out.substring(0, out.length());
 	}
 	/**
 	 * Serialize an object into a byte array
