@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 
 import util.Hash;
+import util.Misc;
 
 /**
  * @author kAG0
@@ -70,14 +71,27 @@ public class Resolver {
 	public Request resolve(Request request) throws UserNotFoundException{
 		connection = getConnection(user, pass);
 		Statement stmt = connection.createStatement();
-		
+		/*
+		 * maybe do the following only in the cases where it's needed
+		 if(request.admin){
+			if(!isValidUser(request.adminName, request.getAuthUserPW()))
+				//return null or something
+		}*/
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
-			case ADD:
+			case ADD: //TODO
 				//get the user name and password
-				//sql insert statement
-				break;
-			case REMOVE:
+			// sql insert statement
+//			"INSERT INTO User values(" + userName + "," + name +
+//					", 0x" + Misc.getHexBytes(stretchedPassword, "") + 
+//					", 0x" + Misc.getHexBytes(salt, "") + ");"
+			makeAdmin(request.adminName, request.username);
+//			"INSERT INTO History(length, lastLoginIndex, userName) values(" +
+//					historyLength + ", 0, " + userName + ");"
+			break;
+			case REMOVE: //TODO
+				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
+					break;
 				//get the info on what to delete
 				//delete: DELETE FROM ___ WHERE user = what we want to delete
 				break;
@@ -86,32 +100,35 @@ public class Resolver {
 					request.setReply(true);
 				else
 					request.setReply(false);
+				//TODO if !admin request, call recordLogin
 				break;
-			case CHANGENAME:
+			case CHANGENAME://TODO
 				//get the name we have to change
 				//UPDATE tablename
 				//SET name = "newname"
 				//WHERE name = "oldname" AND password ="password" AND so on...
 				break;
-			case CHANGEPASSWORD:
+			case CHANGEPASSWORD://TODO
 				// get the password we have to change
 				// UPDATE tablename
 				// SET password = "newpassword"
 				// WHERE name = "name" AND password ="oldpassword" AND so on... 
 				break;
-			case GETINFO:
+			case GETINFO://TODO
 				// SELECT * FROM table WHERE user ="username" AND etc.
 				break;
 			case SETADMIN:
+				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
+					break;
 				// get the newAdminName
 				// SQL INSERT newAdminName and yeah
-				request.setReply(true); // true if the newAdminName has been made an administrator of userName
+				request.setReply(makeAdmin(request.adminName, request.username)); // true if the newAdminName has been made an administrator of userName
 				break;
-			case LIST:
+			case LIST://TODO
 				// ASSUME ITS ADMIN get admin name and pword
 				// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 				break;
-			case HISTORY:
+			case HISTORY://TODO
 				// get username
 				// SELECT allPreviousLogins FROM table WHERE user = "username"
 				break;
@@ -119,6 +136,11 @@ public class Resolver {
 		ResultSet rs = stmt.executeQuery(query);
 		connection.close();
 		return request;
+	}
+	
+	private boolean makeAdmin(String adminName, String userName){
+//		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
+		return true;
 	}
 	
 	public boolean recordLogin(InetAddress origin, String userName) {
