@@ -19,11 +19,12 @@ import org.eclipse.swt.widgets.Button;
 public class Alogin {
 
 	protected Shell Alogin;
-	private boolean login_status = false;
+	public boolean login_status = false;
 	private Text username_text;
 	private Text password_text;
 	private AuthClient portclient;
 	private Button login_button;
+	private Display display;
 
 	/**
 	 * Open the window.
@@ -33,8 +34,8 @@ public class Alogin {
 		new Sanitizer();
 	}
 
-	public void open() {
-		Display display = Display.getDefault();
+	public boolean open() {
+		display = Display.getDefault();
 		createContents();
 		Alogin.open();
 		Alogin.layout();
@@ -43,6 +44,7 @@ public class Alogin {
 				display.sleep();
 			}
 		}
+		return login_status;
 	}
 
 	/**
@@ -88,7 +90,7 @@ public class Alogin {
 				String password = password_text.getText();
 				if (Sanitizer.isCleanInput(username)
 						&& Sanitizer.isCleanInput(password)) {
-					Request loginattempt = null;
+					CHECK loginattempt = null;
 					try {
 						loginattempt = new CHECK(username,
 								password.getBytes("UTF-8"));
@@ -96,12 +98,18 @@ public class Alogin {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					try {
-						loginattempt = portclient.exchange(loginattempt);
-					} catch (UserNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					//try {
+						//loginattempt = (CHECK) portclient
+							//	.exchange(loginattempt);
+						//if (loginattempt.reply) {
+							login_status = true;
+							 display.dispose();
+					//	}
+
+				//	} catch (UserNotFoundException e1) {
+				//		// TODO Auto-generated catch block
+				//		e1.printStackTrace();
+				//	}
 				} else {
 					MessageBox messageBox = new MessageBox(Alogin,
 							SWT.ICON_ERROR);
