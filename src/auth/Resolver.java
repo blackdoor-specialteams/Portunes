@@ -7,8 +7,13 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
+
+//import com.mysql.jdbc.Statement;
+
 
 import util.Hash;
 
@@ -21,6 +26,9 @@ public class Resolver {
 	private static final String serverAddress = "localhost";
 	private static final int port = 1234;
 	private static final String database = "database";
+	private static String query = "The current query is dicks";
+	private static final String USERNAME = "nate";
+	private static final String PASSWORD = "pass";
 	/**
 	 * notes:
 	 * working with IPv4 addresses in mySQL:
@@ -60,38 +68,74 @@ public class Resolver {
 	 * @return same as request but with the reply data member appropriately filled.
 	 */
 	public Request resolve(Request request) throws UserNotFoundException{
+		connection = getConnection(user, pass);
+		Statement stmt = connection.createStatement();
+		
 		switch(request.operation){
+		// In each switch statement make query = to something different depending on what we want to query
 			case ADD:
-				
+				//get the user name and password
+				//sql insert statement
 				break;
 			case REMOVE:
+				//get the info on what to delete
+				//delete: DELETE FROM ___ WHERE user = what we want to delete
 				break;
 			case CHECK:
+				if( isValidUser(USERNAME, PASSWORD))
+					request.setReply(true);
+				else
+					request.setReply(false);
 				break;
 			case CHANGENAME:
+				//get the name we have to change
+				//UPDATE tablename
+				//SET name = "newname"
+				//WHERE name = "oldname" AND password ="password" AND so on...
 				break;
 			case CHANGEPASSWORD:
+				// get the password we have to change
+				// UPDATE tablename
+				// SET password = "newpassword"
+				// WHERE name = "name" AND password ="oldpassword" AND so on... 
 				break;
 			case GETINFO:
+				// SELECT * FROM table WHERE user ="username" AND etc.
 				break;
 			case SETADMIN:
+				// get the newAdminName
+				// SQL INSERT newAdminName and yeah
+				request.setReply(true); // true if the newAdminName has been made an administrator of userName
 				break;
 			case LIST:
+				// ASSUME ITS ADMIN get admin name and pword
+				// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 				break;
 			case HISTORY:
+				// get username
+				// SELECT allPreviousLogins FROM table WHERE user = "username"
 				break;
 		}
+		ResultSet rs = stmt.executeQuery(query);
+		connection.close();
 		return request;
 	}
 	
 	public boolean recordLogin(InetAddress origin, String userName) {
 		
+		return true; // returns true for funsies
 	}
 	
-	private boolean isValidUser(String userName, byte[] password){
-		if( /* userName is in db*/ ){
-			byte[] salt;  //TODO get salt for userName from db
-			byte[] storedPW;  //TODO get saved password for userName from db	
+	private boolean isValidUser(String userName2Check, byte[] password){
+		//do i need to create a new connection or how does i do this
+		String queryValidUser = "SELECT * FROM User WHERE userName = "+ userName2Check+";";
+		ResultSet rs = stmt.executeQuery(queryValidUser);
+		rs.next();
+		String name = rs.getString("userName");
+		if( userName2Check.equalsIgnoreCase(name) ) // check to see if userName2Check is in db
+		{
+			byte[] storedPW = rs.getBytes("userPass"); // get password for userName from db
+			byte[] salt = rs.getBytes("salt");  // get salt for userName from db
 			return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
 		}
 		return false;
