@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 //import com.mysql.jdbc.Statement;
 
@@ -80,20 +82,10 @@ public class Resolver {
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
 			case ADD: //TODO
-				//get the user name and password
-			// sql insert statement
-//			"INSERT INTO User values(" + userName + "," + name +
-//					", 0x" + Misc.getHexBytes(stretchedPassword, "") + 
-//					", 0x" + Misc.getHexBytes(salt, "") + ");"
-			makeAdmin(request.adminName, request.username);
-//			"INSERT INTO History(length, lastLoginIndex, userName) values(" +
-//					historyLength + ", 0, " + userName + ");"
-			break;
+				request.setReply(add((ADD) request));
+				break;
 			case REMOVE: //TODO
-				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
-					break;
-				//get the info on what to delete
-				//delete: DELETE FROM ___ WHERE user = what we want to delete
+				request.setReply(removeUser( (REMOVE) request));
 				break;
 			case CHECK:
 				if( isValidUser(USERNAME, PASSWORD))
@@ -103,19 +95,13 @@ public class Resolver {
 				//TODO if !admin request, call recordLogin
 				break;
 			case CHANGENAME://TODO
-				//get the name we have to change
-				//UPDATE tablename
-				//SET name = "newname"
-				//WHERE name = "oldname" AND password ="password" AND so on...
+				request.setReply(changeName((CHANGENAME) request));
 				break;
 			case CHANGEPASSWORD://TODO
-				// get the password we have to change
-				// UPDATE tablename
-				// SET password = "newpassword"
-				// WHERE name = "name" AND password ="oldpassword" AND so on... 
+				request.setReply(changePass((CHANGEPASS) request));
 				break;
 			case GETINFO://TODO
-				// SELECT * FROM table WHERE user ="username" AND etc.
+				request.setReply(getInfo((GETINFO) request));
 				break;
 			case SETADMIN:
 				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
@@ -125,12 +111,10 @@ public class Resolver {
 				request.setReply(makeAdmin(request.adminName, request.username)); // true if the newAdminName has been made an administrator of userName
 				break;
 			case LIST://TODO
-				// ASSUME ITS ADMIN get admin name and pword
-				// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
+				request.setReply(listUsers((GETINFO) request));
 				break;
 			case HISTORY://TODO
-				// get username
-				// SELECT allPreviousLogins FROM table WHERE user = "username"
+				request.setReply(getHistory((HISTORY) request));
 				break;
 		}
 		ResultSet rs = stmt.executeQuery(query);
@@ -141,6 +125,51 @@ public class Resolver {
 	private boolean makeAdmin(String adminName, String userName){
 //		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
 		return true;
+	}
+	private boolean add(ADD request){
+		//get the user name and password
+		// sql insert statement
+//		"INSERT INTO User values(" + userName + "," + name +
+//				", 0x" + Misc.getHexBytes(stretchedPassword, "") + 
+//				", 0x" + Misc.getHexBytes(salt, "") + ");"
+		makeAdmin(request.adminName, request.username);
+//		"INSERT INTO History(length, lastLoginIndex, userName) values(" +
+//				historyLength + ", 0, " + userName + ");"
+		return true;
+	}
+	private boolean changeName(CHANGENAME request){
+		//get the name we have to change
+		//UPDATE tablename
+		//SET name = "newname"
+		//WHERE name = "oldname" AND password ="password" AND so on...
+		return true;
+	}
+	private boolean changePass(CHANGEPASS request){
+		// get the password we have to change
+		// UPDATE tablename
+		// SET password = "newpassword"
+		// WHERE name = "name" AND password ="oldpassword" AND so on... 
+		return true;
+	}
+	private Map<String, Object> getInfo(GETINFO request){
+		// SELECT * FROM table WHERE user ="username" AND etc.
+		return null;
+	}
+	private List<Map<String, Object>> getHistory(HISTORY request){
+		// get username
+		// SELECT allPreviousLogins FROM table WHERE user = "username"
+		return null;
+	}
+	private List<Map<String, Object>> listUsers(GETINFO request){
+		// ASSUME ITS ADMIN get admin name and pword
+		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
+		return null;
+	}
+	private boolean removeUser(REMOVE request){
+		if(!isValidAdmin(request.username, request.adminName, request.adminPW))
+			break;
+		//get the info on what to delete
+		//delete: DELETE FROM ___ WHERE user = what we want to delete
 	}
 	
 	public boolean recordLogin(InetAddress origin, String userName) {
