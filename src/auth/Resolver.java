@@ -117,8 +117,8 @@ public class Resolver {
 	 * @return same as request but with the reply data member appropriately filled.
 	 */
 	public Request resolve(Request request) throws UserNotFoundException{
-		connection = getConnection(user, pass);
-		Statement stmt = connection.createStatement();
+		//connection = getConnection(user, pass);
+		//Statement stmt = connection.createStatement();
 		/*
 		 * maybe do the following only in the cases where it's needed
 		 if(request.admin){
@@ -127,20 +127,19 @@ public class Resolver {
 		}*/
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
-			case ADD: //TODO
+			case ADD: 
 				request.setReply(add((ADD) request));
 				break;
-			case REMOVE: //TODO
+			case REMOVE:
 				if(isValidAdmin(request.username, request.adminName, request.adminPW))
 					request.setReply(removeUser((REMOVE) request));
 				else request.setReply(false);
 				break;
 			case CHECK:
-				if( isValidUser(USERNAME, PASSWORD))
-					request.setReply(true);
-				else
-					request.setReply(false);
+				request.setReply(isValidUser(request.username, request.userPW));
 				//TODO if !admin request, call recordLogin
+				if(!request.admin)
+					recordLogin(request.origin, request.username);
 				break;
 			case CHANGENAME://TODO
 				request.setReply(changeName((CHANGENAME) request));
@@ -292,17 +291,26 @@ public class Resolver {
 	
 	private boolean isValidUser(String userName2Check, byte[] password){
 		//do i need to create a new connection or how does i do this
-		String queryValidUser = "SELECT * FROM User WHERE userName = "+ userName2Check+";";
-		ResultSet rs = stmt.executeQuery(queryValidUser);
-		rs.next();
-		String name = rs.getString("userName");
-		if( userName2Check.equalsIgnoreCase(name) ) // check to see if userName2Check is in db
-		{
-			byte[] storedPW = rs.getBytes("userPass"); // get password for userName from db
-			byte[] salt = rs.getBytes("salt");  // get salt for userName from db
-			return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
+		String queryValidUser = "SELECT * FROM User WHERE userName = '"+ userName2Check+"';";
+
+		try {
+			if(connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(queryValidUser);
+			if(rs.next()){
+				byte[] storedPW = rs.getBytes("password"); // get password for userName from db
+				byte[] salt = rs.getBytes("salt");
+				return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
+			}
+			else
+				return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return false;
+		//return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
+
 	}
 	
 	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
