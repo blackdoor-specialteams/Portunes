@@ -62,7 +62,8 @@ public class AHome {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shlPortunesAdministrator = new Shell(SWT.CLOSE | SWT.TITLE | SWT.PRIMARY_MODAL);
+		shlPortunesAdministrator = new Shell(SWT.CLOSE | SWT.TITLE
+				| SWT.PRIMARY_MODAL);
 		shlPortunesAdministrator.setSize(388, 411);
 		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 
@@ -81,7 +82,7 @@ public class AHome {
 		Label _USInstrc_Label = new Label(_UserSrch_Grp, SWT.NONE);
 		_USInstrc_Label.setBounds(10, 10, 335, 15);
 		_USInstrc_Label
-				.setText("You are able to search by either a username or the user's name. ");
+				.setText("Search by either an exact  username or the user's exact name. ");
 
 		Label _USuname_Label = new Label(_UserSrch_Grp, SWT.NONE);
 		_USuname_Label.setBounds(20, 41, 55, 15);
@@ -207,27 +208,19 @@ public class AHome {
 				_USuname_tbox.setEnabled(true);
 				_USname_tbox.setEnabled(true);
 				_DBquery_button.setEnabled(false);
-			}
-			else if (_DB_radio.getSelection()) {
+			} else if (_DB_radio.getSelection()) {
 				_USuname_tbox.setEnabled(false);
 				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
-			}
-			else if (e.getSource() == showResults_button) {
+			} else if (e.getSource() == showResults_button) {
 				QResults results = new QResults(portclient);
 				if (_US_radio.getSelection()) {
-			//		get query here? 
-			// 		send reply to the results ???
-					 results.open();
+					results.open();
 				} else if (_DB_radio.getSelection()) {
-				//use the generated query and send it 
-				//tp to the results page
-				//	results.open();
+					results.open();
 				}
-			}
-			else if (e.getSource() == showResults_button) {
-				
-				}
+			} else if (e.getSource() == showResults_button) {
+
 			}
 		}
 	}
