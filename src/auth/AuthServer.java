@@ -50,6 +50,7 @@ public class AuthServer {
 	public static final int stretchLength = 90500;// 90500 yields between 1/2s
 													// and 1s on 2.4ghz
 													// sandyBridge i7
+													// 4500 yields about 100ms
 
 	/**
 	 * @param args
@@ -346,6 +347,7 @@ public class AuthServer {
 			try {
 				uSalt = resolver.getUserSalt(userName);
 				uHash = resolver.getUserHash(userName);
+				System.out.println(Misc.getHexBytes(uHash, ""));//TODO
 			} catch (UserNotFoundException e) {
 				e.printStackTrace();
 				outputObject.writeObject(null);
@@ -361,7 +363,7 @@ public class AuthServer {
 		private void openSocketInput() {
 			try {
 				remoteAddress = socket.getRemoteSocketAddress();
-				System.out.println(remoteAddress);
+				//System.out.println(remoteAddress);
 				// inputObject = new ObjectInputStream(socket.getInputStream());
 				inputBuffer = new BufferedInputStream(socket.getInputStream());
 				inputObject = new ObjectInputStream(inputBuffer);

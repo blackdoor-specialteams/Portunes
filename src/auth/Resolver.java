@@ -29,8 +29,8 @@ import util.Watch;
  */
 public class Resolver {
 	private Connection connection = null;
-	private static final String serverAddress = "localhost";
-	private static final int PORT = 1234;
+	private static final String serverAddress = "vodkapi.dyndns.info";
+	private static final int PORT = 3306;
 	private static final String DATABASE = "Portunes";
 	private static String query = "The current query is dicks";
 	private static final String USERNAME = "nate";
@@ -72,6 +72,7 @@ public class Resolver {
 	 */
 	public byte[] getUserSalt(String userName) throws UserNotFoundException, IOException{
 		//Connection connection;
+		//System.out.println("getting salt");
 		try {
 			if(connection == null)
 				connect();//connection = getConnection(USERNAME, PASSWORD);
@@ -80,7 +81,9 @@ public class Resolver {
 			ResultSet rs = stmt.executeQuery(query);
 			if(rs.next())
 			{
-				return rs.getBytes("salt");
+				byte[] salt = rs.getBytes("salt");
+				//System.out.println(Misc.getHexBytes(salt, ""));
+				return salt;
 			}else
 				throw new UserNotFoundException(userName);
 		} catch (SQLException e) {
@@ -95,11 +98,13 @@ public class Resolver {
 	
 	public byte[] getUserHash(String userName) throws UserNotFoundException, IOException{
 		//Connection connection;
+		System.out.println("getting hash");
 		try {
 			if(connection == null)
 				connect();//connection = getConnection(USERNAME, PASSWORD);
 			String query = "SELECT password FROM User WHERE userName = '" + userName + "';";
 			Statement stmt = connection.createStatement();
+			//System.out.println(query);
 			ResultSet rs = stmt.executeQuery(query);
 			if(rs.next())
 			{
@@ -166,8 +171,8 @@ public class Resolver {
 				request.setReply(getHistory((HISTORY) request));
 				break;
 		}
-		ResultSet rs = stmt.executeQuery(query);
-		connection.close();
+		//ResultSet rs = stmt.executeQuery(query);
+		//close();
 		return request;
 	}
 	
