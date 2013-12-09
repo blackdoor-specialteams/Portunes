@@ -21,6 +21,7 @@ import java.util.Map;
 
 import util.Hash;
 import util.Misc;
+import util.Watch;
 
 /**
  * @author kAG0
@@ -55,7 +56,8 @@ public class Resolver {
 	}
 	
 	public void connect() throws SQLException{
-		connection = getConnection(USERNAME, PASSWORD);
+		if(connection == null)
+			connection = getConnection(USERNAME, PASSWORD);
 	}
 	public void disconnect() throws SQLException{
 		connection.close();
@@ -203,7 +205,7 @@ public class Resolver {
 			stmt_history.executeUpdate(query_history);
 			if(!makeAdmin(request.adminName, request.username))
 				throw new SQLException();
-			
+			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			if(connection != null){
@@ -285,8 +287,44 @@ public class Resolver {
 
 	
 	public boolean recordLogin(InetAddress origin, String userName) {
-		
-		return true; // returns true for funsies
+		boolean ret = false;
+		Watch time = new Watch();
+		String incQuery = "UPDATE LogIn SET lastLoginIndex = (lastLoginIndex + 1) MOD length WHERE userName = '" + userName + "';";
+		String query = "INSERT INTO LogIn(hid, ip, month, day, year, index, hours, minutes)" +
+				" SELECT h.hid, INET_ATON('" + origin.getHostAddress() + "'), " 
+					+ time.getMonth() + ", " + time.getDate() + ", " + time.getYear() + 
+					", h.lastLoginIndex MOD h.length, '" + time.getHours() + "', '" + time.getMinutes() + "' " +
+				"FROM History h" +
+				"WHERE h.userName = '" + userName + "'";
+		try {
+			connect();
+			connection.setAutoCommit(false);
+			Statement stmt = connection.createStatement();
+			stmt.executeUpdate(incQuery);
+			stmt.executeUpdate(query);
+			connection.commit();
+			ret = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			ret = false;
+			try {
+				if(connection != null)
+					connection.rollback();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}finally{
+			if(connection != null)
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		return ret;
+		//return true; // returns true for funsies
 	}
 	
 	private boolean isValidUser(String userName2Check, byte[] password){
