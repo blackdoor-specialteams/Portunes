@@ -20,7 +20,7 @@ public class Test {
 		System.out.println("password1stretch " + Misc.getHexBytes(Hash.getStretchedSHA256("password1".getBytes("UTF-8"), salt, AuthServer.stretchLength),""));
 		System.out.println("salt "+Misc.getHexBytes(salt, ""));
 		AuthClient client = new AuthClient("localhost", 1234);
-		Request req = new CHECK("Bobh", Hash.getSHA256("password".getBytes("UTF-8")));
+		Request req = new CHECK("jim", Hash.getSHA256("password".getBytes("UTF-8")));
 		StopWatch time = new StopWatch(true);
 		Request rep = client.exchange(req);
 		System.out.println("exchange time: " + time.checkMS() + "ms");

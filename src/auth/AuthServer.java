@@ -280,14 +280,23 @@ public class AuthServer {
 					request.origin = socket.getInetAddress();
 					Request reply = resolver.resolve(request);
 					sendReply(reply);
-					closeSocket();
+					//closeSocket();
 				} catch (UserNotFoundException e) {
 					System.err.println("Authentication on authority of "
 							+ e.getUserName() + " failed.");
 				}
 
 			} catch (IOException e) {
-				System.err.print(e);
+				e.printStackTrace();
+				//System.err.print(e);
+				;
+			}finally{
+				try {
+					closeSocket();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 
