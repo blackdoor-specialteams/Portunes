@@ -35,7 +35,9 @@ public class Misc {
 				out += "0";
 			out += Integer.toHexString(tmp).toUpperCase() + space;
 		}
-		return out.substring(0, out.length());
+		if(space.equals(""))
+			return out.substring(0, out.length());
+		return out.substring(0, out.length()-1);
 	}
 	/**
 	 * Serialize an object into a byte array
