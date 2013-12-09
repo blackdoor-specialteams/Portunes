@@ -217,7 +217,7 @@ public class AHome {
 				if (_US_radio.getSelection()) {
 					results.open();
 				} else if (_DB_radio.getSelection()) {
-					results.open();
+					//results.open();
 				}
 			} else if (e.getSource() == showResults_button) {
 
