@@ -21,6 +21,8 @@ import java.security.SecureRandom;
 //import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.Scanner;
+
+import javax.xml.bind.DatatypeConverter;
 //import java.util.UUID;
 
 //import auth.AuthRequest.Operation;
@@ -356,7 +358,7 @@ public class AuthServer {
 			try {
 				uSalt = resolver.getUserSalt(userName);
 				uHash = resolver.getUserHash(userName);
-				System.out.println(Misc.getHexBytes(uHash, ""));//TODO
+				System.out.println(DatatypeConverter.printHexBinary(uHash));//TODO
 			} catch (UserNotFoundException e) {
 				e.printStackTrace();
 				outputObject.writeObject(null);
