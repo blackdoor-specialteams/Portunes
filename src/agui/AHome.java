@@ -27,6 +27,7 @@ public class AHome {
 	private Text text_4;
 	private Text text_5;
 	private AuthClient portclient;
+	private String query;
 
 	private Button _US_radio;
 	private Button _DB_radio;
@@ -102,19 +103,23 @@ public class AHome {
 		_DBquery_button = new Button(_DBSrch_Grp, SWT.NONE);
 		_DBquery_button.setBounds(108, 27, 126, 25);
 		_DBquery_button.setText("Show query list");
+		_DBquery_button.setEnabled(false);
 
 		_US_radio = new Button(_Search_comp, SWT.RADIO);
 		_US_radio.setBounds(10, 10, 130, 16);
 		_US_radio.setText("Search For User");
 		_US_radio.setSelection(true);
+		_US_radio.addSelectionListener(new DatabaseSearchButton());
 
 		_DB_radio = new Button(_Search_comp, SWT.RADIO);
 		_DB_radio.setBounds(10, 133, 257, 16);
 		_DB_radio.setText("Seach database using advanced queries");
+		_DB_radio.addSelectionListener(new DatabaseSearchButton());
 
 		showResults_button = new Button(_Search_comp, SWT.NONE);
 		showResults_button.setBounds(235, 282, 130, 39);
 		showResults_button.setText("Show Results");
+		showResults_button.addSelectionListener(new DatabaseSearchButton());
 
 		TabItem _Add_tab = new TabItem(_home_tabs, SWT.NONE);
 		_Add_tab.setText("Add New User");
@@ -198,19 +203,30 @@ public class AHome {
 	public class DatabaseSearchButton extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			if (_US_radio.isEnabled()) {
-				_UserSrch_Grp.setEnabled(true);
-				_DBSrch_Grp.setEnabled(false);
+			if (_US_radio.getSelection()) {
+				_USuname_tbox.setEnabled(true);
+				_USname_tbox.setEnabled(true);
+				_DBquery_button.setEnabled(false);
 			}
-			if (_DB_radio.isEnabled()) {
-				_DBSrch_Grp.setEnabled(false);
-				_UserSrch_Grp.setEnabled(true);
+			else if (_DB_radio.getSelection()) {
+				_USuname_tbox.setEnabled(false);
+				_USname_tbox.setEnabled(false);
+				_DBquery_button.setEnabled(true);
 			}
-			if (e.getSource() == showResults_button) {
-				if (_US_radio.isEnabled()) {
-
-				} else if (_DB_radio.isEnabled()) {
-
+			else if (e.getSource() == showResults_button) {
+				QResults results = new QResults(portclient);
+				if (_US_radio.getSelection()) {
+			//		get query here? 
+			// 		send reply to the results ???
+					 results.open();
+				} else if (_DB_radio.getSelection()) {
+				//use the generated query and send it 
+				//tp to the results page
+				//	results.open();
+				}
+			}
+			else if (e.getSource() == showResults_button) {
+				
 				}
 			}
 		}

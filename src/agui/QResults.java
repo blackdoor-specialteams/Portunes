@@ -8,22 +8,16 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Button;
 
+import auth.*;
+
 public class QResults {
 
 	protected Shell _QResults_swt;
 	private Table table;
+	private AuthClient portclient;
 
-	/**
-	 * Launch the application.
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-			QResults window = new QResults();
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public QResults(AuthClient portclient) {
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
