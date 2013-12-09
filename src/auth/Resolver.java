@@ -364,7 +364,21 @@ public class Resolver {
 	}
 	
 	private boolean isAdmin(String adminName, byte[] password){
-		
+		String query = "SELECT * " +
+				"FROM Admin JOIN User ON adminName = userName " +
+				"WHERE adminName = '" + adminName + "' ";
+		try {
+			connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			if(rs.next()){
+				return true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
