@@ -3,8 +3,10 @@
  */
 package auth;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -27,8 +29,8 @@ import util.Misc;
 public class Resolver {
 	private Connection connection = null;
 	private static final String serverAddress = "localhost";
-	private static final int port = 1234;
-	private static final String database = "database";
+	private static final int PORT = 1234;
+	private static final String DATABASE = "Portunes";
 	private static String query = "The current query is dicks";
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
@@ -49,20 +51,64 @@ public class Resolver {
 	}
 	
 	private Connection getConnection(String sqlUserName, String sqlUserPassword) throws SQLException{
-		return DriverManager.getConnection("jdbc:mysql://" + serverAddress + ":" + port + "/" + database, sqlUserName, sqlUserPassword);
+		return DriverManager.getConnection("jdbc:mysql://" + serverAddress + ":" + PORT + "/" + DATABASE, sqlUserName, sqlUserPassword);
+	}
+	
+	public void connect() throws SQLException{
+		connection = getConnection(USERNAME, PASSWORD);
+	}
+	public void disconnect() throws SQLException{
+		connection.close();
+		connection = null;
 	}
 	
 	/**
 	 * 
 	 * @param userName
 	 * @return the salt of userName, if userName DNE then return null
+	 * @throws IOException 
 	 */
-	public byte[] getUserSalt(String userName){
-		return null;//TODO
+	public byte[] getUserSalt(String userName) throws UserNotFoundException, IOException{
+		//Connection connection;
+		try {
+			if(connection == null)
+				connect();//connection = getConnection(USERNAME, PASSWORD);
+			String query = "SELECT salt FROM User WHERE userName = '" + userName + "';";
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			if(rs.next())
+			{
+				return rs.getBytes("salt");
+			}else
+				throw new UserNotFoundException(userName);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException("Problem getting user salt from DB.");
+		}
+		
+		
+		//return null;//TODO
 	}
 	
-	public byte[] getUserHash(String userName) throws UserNotFoundException{
-		return null; //TODO
+	public byte[] getUserHash(String userName) throws UserNotFoundException, IOException{
+		//Connection connection;
+		try {
+			if(connection == null)
+				connect();//connection = getConnection(USERNAME, PASSWORD);
+			String query = "SELECT password FROM User WHERE userName = '" + userName + "';";
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			if(rs.next())
+			{
+				return rs.getBytes("password");
+			}else
+				throw new UserNotFoundException(userName);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException("Problem getting user hash from DB.");
+		}
 	}
 	/**
 	 * parses request and returns a Request that is the same as request but with
@@ -122,20 +168,66 @@ public class Resolver {
 		return request;
 	}
 	
-	private boolean makeAdmin(String adminName, String userName){
+	private boolean makeAdmin(String adminName, String userName) throws SQLException{
 //		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
+		if(connection == null)
+			connect();
+		Statement stmt = connection.createStatement();
+		try {
+			stmt.executeUpdate("INSERT INTO Admin values(" + adminName + "," + userName + ");");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 	private boolean add(ADD request){
-		//get the user name and password
+		byte[] salt = new byte[AuthServer.saltLength];
+		new SecureRandom().nextBytes(salt);
+		String query_create = "INSERT INTO User values(" + request.username + "," + request.name +
+				", 0x" + Misc.getHexBytes(Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength), "") + 
+				", 0x" + Misc.getHexBytes(salt, "") + ");";
+		String query_history = "INSERT INTO History(length, lastLoginIndex, userName) values(" +
+				"6"/*<<history length*/ + ", 0, " + request.username + ");";
 		// sql insert statement
+		try {
+			if(connection == null)
+				connect();
+			connection.setAutoCommit(false);
+
+			Statement stmt_create = connection.createStatement();
+			Statement stmt_history = connection.createStatement();
+			
+			stmt_create.executeUpdate(query_create);
+			stmt_history.executeUpdate(query_history);
+			if(!makeAdmin(request.adminName, request.username))
+				throw new SQLException();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			if(connection != null){
+				try {
+					connection.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+			return false;
+		}finally{
+			try {
+				if(connection != null)
+					connection.setAutoCommit(true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return true;
 //		"INSERT INTO User values(" + userName + "," + name +
 //				", 0x" + Misc.getHexBytes(stretchedPassword, "") + 
 //				", 0x" + Misc.getHexBytes(salt, "") + ");"
-		makeAdmin(request.adminName, request.username);
+		
 //		"INSERT INTO History(length, lastLoginIndex, userName) values(" +
 //				historyLength + ", 0, " + userName + ");"
-		return true;
 	}
 	private boolean changeName(CHANGENAME request){
 		//get the name we have to change

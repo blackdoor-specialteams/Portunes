@@ -43,7 +43,7 @@ public class AuthServer {
 	// TODO put in actual DB
 	// TODO replace all authmanager stuff with nemo's Resolver(or whatever)
 	// private AuthManager authManager; //replace this with a SQL db manager
-	private TestResolver authManager;
+	private Resolver authManager;
 	public static final String greeting = "Portumnes";
 	public static final int saltLength = 32;
 	public static final int passLength = 32;
@@ -85,7 +85,7 @@ public class AuthServer {
 	 * settings
 	 */
 	public void createManager() {
-		authManager = new TestResolver();// AuthManager();
+		authManager = new Resolver();// AuthManager();
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class AuthServer {
 	 */
 	public void createManager(String DBFile) {
 		// try {
-		authManager = new TestResolver(DBFile);
+		//authManager = new Resolver(DBFile);
 		// } catch (IOException e) {
 		// System.err.println("specified file is corrupted or not a UserDB");
 		// e.printStackTrace();
@@ -110,7 +110,7 @@ public class AuthServer {
 	 */
 	public void start() {
 		if (authManager == null) {
-			authManager = new TestResolver();// AuthManager();
+			authManager = new Resolver();// AuthManager();
 		}
 		CLI cli = new CLI(this);
 		cli.start();
@@ -239,7 +239,7 @@ public class AuthServer {
 		private Socket socket;
 		private SocketAddress remoteAddress;
 		// private AuthManager manager;// to be changed out for Resolver
-		private TestResolver resolver;
+		private Resolver resolver;
 		// private OutputStream outputBuffer;
 		private ObjectOutput outputObject;
 		private InputStream inputBuffer;
@@ -247,7 +247,7 @@ public class AuthServer {
 		private String userName;
 		private byte[] seshKey;
 
-		AuthConnectionHandler(Socket socket, TestResolver manager) {
+		AuthConnectionHandler(Socket socket, Resolver manager) {
 			this.socket = socket;
 			this.resolver = manager;
 		}
