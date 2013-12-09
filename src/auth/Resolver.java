@@ -131,7 +131,9 @@ public class Resolver {
 				request.setReply(add((ADD) request));
 				break;
 			case REMOVE: //TODO
-				request.setReply(removeUser( (REMOVE) request));
+				if(isValidAdmin(request.username, request.adminName, request.adminPW))
+					request.setReply(removeUser((REMOVE) request));
+				else request.setReply(false);
 				break;
 			case CHECK:
 				if( isValidUser(USERNAME, PASSWORD))
@@ -229,6 +231,29 @@ public class Resolver {
 //		"INSERT INTO History(length, lastLoginIndex, userName) values(" +
 //				historyLength + ", 0, " + userName + ");"
 	}
+	
+	private boolean removeUser(REMOVE request){
+		String query = "DELETE User, LogIn, History, Admin FROM User, LogIn, History, Admin " +
+				"WHERE User.userName = '" + request.username + "' AND User.userName = " +
+				"History.userName AND (User.userName = Admin.userName OR User.userName = Admin.adminName) " +
+				"AND LogIn.hid = History.hid ;";
+		try {
+			if(connection == null)
+				connect();
+
+			Statement stmt = connection.createStatement();
+			
+			stmt.executeUpdate(query);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		//get the info on what to delete
+		//delete: DELETE FROM ___ WHERE user = what we want to delete
+	}
+	
 	private boolean changeName(CHANGENAME request){
 		//get the name we have to change
 		//UPDATE tablename
@@ -236,6 +261,7 @@ public class Resolver {
 		//WHERE name = "oldname" AND password ="password" AND so on...
 		return true;
 	}
+	
 	private boolean changePass(CHANGEPASS request){
 		// get the password we have to change
 		// UPDATE tablename
@@ -257,12 +283,7 @@ public class Resolver {
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 		return null;
 	}
-	private boolean removeUser(REMOVE request){
-		if(!isValidAdmin(request.username, request.adminName, request.adminPW))
-			break;
-		//get the info on what to delete
-		//delete: DELETE FROM ___ WHERE user = what we want to delete
-	}
+
 	
 	public boolean recordLogin(InetAddress origin, String userName) {
 		
