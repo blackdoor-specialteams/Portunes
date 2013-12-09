@@ -170,6 +170,13 @@ public class Resolver {
 			case HISTORY://TODO
 				request.setReply(getHistory((HISTORY) request));
 				break;
+			case CHECKADMIN:
+				if(isAdmin(request.username, request.userPW)){
+					request.setReply(true);
+					recordLogin(request.origin, request.username);
+				}
+				else request.setReply(false);
+				break;
 		}
 		//ResultSet rs = stmt.executeQuery(query);
 		//close();
@@ -354,6 +361,10 @@ public class Resolver {
 		return false;
 		//return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
 
+	}
+	
+	private boolean isAdmin(String adminName, byte[] password){
+		
 	}
 	
 	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){

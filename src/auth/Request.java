@@ -17,7 +17,7 @@ import java.util.Arrays;
  */
 public abstract class Request implements Serializable {
 	public enum Operation{
-		ADD, REMOVE, CHECK, CHANGENAME, CHANGEPASSWORD, GETINFO, SETADMIN, LIST, HISTORY
+		ADD, REMOVE, CHECK, CHANGENAME, CHANGEPASSWORD, GETINFO, SETADMIN, LIST, HISTORY, CHECKADMIN
 	}
 	public boolean admin;
 	public InetAddress origin;
