@@ -46,5 +46,5 @@ public class Session {
 	}
 	public String getPass(){
 		return adminname;
-	}
+	} 
 }
