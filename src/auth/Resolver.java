@@ -385,7 +385,7 @@ public class Resolver {
 				connect();
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
-			if(rs.next()){
+			while(rs.next()){
 				hid = rs.getInt("hid");
 				ip = rs.getInt("ip");
 				month = rs.getInt("month");
@@ -409,12 +409,47 @@ public class Resolver {
 		}		
 		return null;
 	}
+	
 	private List<Map<String, Object>> listUsers(GETINFO request){
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
-		
-		
-		return null;
+		List<Map<String, Object>> reply = new ArrayList();
+		String query = "SELECT h.userName l.hid, l.ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
+				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
+				+ " WHERE adminName = '"+ request.username +"' ;"; // admin = the user of the request
+		String userName = "";
+		int hid, ip, month, day, year, hours, minutes, i;
+		i=0;
+		try {
+			if(connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			while(rs.next()){
+				userName = rs.getString("userName");
+				hid = rs.getInt("hid");
+				ip = rs.getInt("ip");
+				month = rs.getInt("month");
+				day = rs.getInt("day");
+				year = rs.getInt("year");
+				hours = rs.getInt("hours");
+				minutes = rs.getInt("minutes");
+				reply.get(i).put("USERNAME", userName);
+				reply.get(i).put("HID", hid);
+				reply.get(i).put("IP", ip);
+				reply.get(i).put("MONTH", month);
+				reply.get(i).put("DAY", day);
+				reply.get(i).put("YEAR", year);
+				reply.get(i).put("HOURS", hours);
+				reply.get(i).put("MINUTES",minutes);
+				i++;
+			}
+			return reply;
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		return null;			
 	}
 
 	//TODO make this work (updating logIn instead of inserting. maybe add entire empty login history at user creation
