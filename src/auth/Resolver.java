@@ -209,6 +209,13 @@ public class Resolver {
 				}
 				else request.setReply(false);
 				break;
+				
+		}
+		try {
+			disconnect();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return request;

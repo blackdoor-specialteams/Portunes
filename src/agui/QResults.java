@@ -1,13 +1,12 @@
 package agui;
 
-import java.awt.Event;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -15,17 +14,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
+
 import org.eclipse.swt.widgets.Button;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.Statement;
 
 import auth.*;
 
 public class QResults {
 
-	protected Shell _QResults_swt;
+	protected Shell qresultshell;
+	protected Shell parentshell;
 	private AuthClient portclient;
 	private static java.sql.Connection connect;
 	private static java.sql.Statement statement;
@@ -44,7 +42,8 @@ public class QResults {
 	private Button edit_button;
 	private Display display;
 
-	public QResults(AuthClient a,Session b) {
+	public QResults(Display d,AuthClient a,Session b) {
+		display = d;
 		portclient = a;
 		session = b;
 	}
@@ -53,11 +52,10 @@ public class QResults {
 	 * Open the window.
 	 */
 	public void open() {
-		display = Display.getDefault();
 		createContents();
-		_QResults_swt.open();
-		_QResults_swt.layout();
-		while (!_QResults_swt.isDisposed()) {
+		qresultshell.open();
+		qresultshell.layout();
+		while (!qresultshell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
@@ -70,11 +68,11 @@ public class QResults {
 	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
-		_QResults_swt = new Shell();
-		_QResults_swt.setSize(788, 437);
-		_QResults_swt.setText("Results");
+		qresultshell = new Shell();
+		qresultshell.setSize(788, 437);
+		qresultshell.setText("Results");
 
-		Composite _Results_comp = new Composite(_QResults_swt, SWT.NONE);
+		Composite _Results_comp = new Composite(qresultshell, SWT.NONE);
 		_Results_comp.setBounds(0, 0, 772, 398);
 
 		done_button = new Button(_Results_comp, SWT.NONE);

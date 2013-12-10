@@ -42,6 +42,7 @@ public class AHome {
 	private Button showResults_button;
 	private Group _UserSrch_Grp;
 	private Group _DBSrch_Grp;
+	private Display display;
 
 	private Session session;
 
@@ -57,7 +58,7 @@ public class AHome {
 	 * @wbp.parser.entryPoint
 	 */
 	public void open() {
-		Display display = Display.getDefault();
+		display = Display.getDefault();
 		createContents();
 		shlPortunesAdministrator.open();
 		shlPortunesAdministrator.layout();
@@ -225,12 +226,7 @@ public class AHome {
 				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
 			} else if (e.getSource() == showResults_button) {
-				QResults results = new QResults(portclient,session);
-				if (_US_radio.getSelection()) {
-					results.open();
-				} else if (_DB_radio.getSelection()) {
-					// results.open();
-				}
+				openQResults(); 
 			} else if (e.getSource() == showResults_button) {
 
 			}
@@ -288,4 +284,10 @@ public class AHome {
 			}
 		}
 	}
+	private void openQResults() 
+    {
+		QResults child = new QResults(display,portclient,session);
+        child.open();
+    }
+	
 }
