@@ -52,16 +52,17 @@ public class Resolver {
 	 * 	ATON converts things from the form '192.168.1.1' to an integer
 	 * 	NTOA converts from an integer to the above form.
 	 *
+	 * checking user validity is probably redundant as long as you check Request.admin
+	 * because if !admin, username and userPW would have to be valid to get the request
+	 * resolver.
 	 */
 	/**
 	 * 
 	 */
 	public Resolver() {
-		// TODO Auto-generated constructor stub
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -102,13 +103,9 @@ public class Resolver {
 			}else
 				throw new UserNotFoundException(userName);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new IOException("Problem getting user salt from DB.");
 		}
-		
-		
-		//return null;//TODO
 	}
 	
 	public byte[] getUserHash(String userName) throws UserNotFoundException, IOException{
@@ -127,7 +124,6 @@ public class Resolver {
 			}else
 				throw new UserNotFoundException(userName);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new IOException("Problem getting user hash from DB.");
 		}
@@ -162,12 +158,11 @@ public class Resolver {
 				break;
 			case CHECK:
 				request.setReply(isValidUser(request.username, request.userPW));
-				//TODO if !admin request, call recordLogin
 				CHECK reply = (CHECK) request;
 				if(!request.admin && reply.reply)
 					recordLogin(request.origin, request.username);
 				break;
-			case CHANGENAME://TODO
+			case CHANGENAME:
 				if(!request.admin){
 					if(isValidUser(request.username, request.userPW)){
 						request.setReply(changeName((CHANGENAME) request));
@@ -420,7 +415,7 @@ public class Resolver {
 		return null;
 	}
 
-	
+	//TODO make this work (updating logIn instead of inserting. maybe add entire empty login history at user creation
 	public boolean recordLogin(InetAddress origin, String userName) {
 		boolean ret = false;
 		Watch time = new Watch();
