@@ -55,6 +55,8 @@ public class Resolver {
 	 * checking user validity is probably redundant as long as you check Request.admin
 	 * because if !admin, username and userPW would have to be valid to get the request
 	 * resolver.
+	 * 
+	 * lots of things should be changed to prepared statements
 	 */
 	/**
 	 * 
@@ -502,34 +504,26 @@ public class Resolver {
 		}
 		return false;
 	}
-	
+	//not efficient, needs optimization up the wazoo
 	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
-		String query1 = "SELECT userName FROM User WHERE userName = '" +userName+"';";// query that gets username of a specific user
-		String query2 = "SELECT adminName FROM Admin WHERE adminName = '" +adminName+ "' AND userName = '"+ userName+"' ;";// query that gets the admin name of a specific user
-		String userName2Check = "";
-		String adminName2Check = "";
-		byte[] storedPW = null;
-		byte[] salt = null;
-		try{
-			connect();
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query1);
-			Statement stmt2 = connection.createStatement();
-			ResultSet rs2 = stmt2.executeQuery(query2);// gets the admin name if it exists from the query
-			
-			if(rs.next())
-				userName2Check = rs.getString("userName");
-			
-			if( userName.equals(userName2Check)/* userName is in db */ && isValidUser(adminName, adminPW) ){
-				if(rs2.next())
-					adminName2Check = rs2.getString("adminName");
-				if(adminName.equals(adminName2Check) /* adminName is set as an admin of userName in db */)
-					storedPW = rs2.getBytes("password"); // get password for userName from db
-					salt = rs2.getBytes("salt");
-					return Arrays.equals(Hash.getStretchedSHA256(adminPW, salt, AuthServer.stretchLength), storedPW);
-			}
-			else
-				return false;
+		if(!isAdmin(adminName) || !isValidUser(adminName, adminPW))
+			return false; //this check saves time if adminName isnt' an admin 
+							//or user, but only adds a couple (to the n ;( ) queries if they are
+		String q1 = "SELECT adminName FROM Admin WHERE userName = '" + userName +"';";
+		try {
+			return isAdminOf(adminName, userName);
+//			connect();
+//			Statement stmt1 = connection.createStatement();
+//			ResultSet rs1 = stmt1.executeQuery(q1);
+//			while(rs1.next()){
+//				if(rs1.getString("adminName").equalsIgnoreCase(adminName))
+//					return true;
+//			}
+//			rs1.beforeFirst();
+//			while(rs1.next()){
+//				if(isAdminOf(adminName, rs1.getString("adminName")))
+//					return true;
+//			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -537,6 +531,56 @@ public class Resolver {
 			//if adminname is and admin of a user who is an admin of userName return true
 			// potential exemplary query here
 	}
+	private boolean isAdminOf(String adminName, String userName) throws SQLException{
+		String q1 = "SELECT adminName FROM Admin WHERE userName = '" + userName +"';";
+		connect();
+		Statement stmt1 = connection.createStatement();
+		ResultSet rs1 = stmt1.executeQuery(q1);
+		while(rs1.next()){
+			if(rs1.getString("adminName").equalsIgnoreCase(adminName))
+				return true;
+		}
+		rs1.beforeFirst();
+		while(rs1.next()){
+			if(isAdminOf(adminName, rs1.getString("adminName")))
+				return true;
+		}
+		return false;
+	}
+//	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
+//		String query1 = "SELECT userName FROM User WHERE userName = '" +userName+"';";// query that gets username of a specific user
+//		String query2 = "SELECT adminName FROM Admin WHERE adminName = '" +adminName+ "' AND userName = '"+ userName+"' ;";// query that gets the admin name of a specific user
+//		String userName2Check = "";
+//		String adminName2Check = "";
+//		byte[] storedPW = null;
+//		byte[] salt = null;
+//		try{
+//			connect();
+//			Statement stmt = connection.createStatement();
+//			ResultSet rs = stmt.executeQuery(query1);
+//			Statement stmt2 = connection.createStatement();
+//			ResultSet rs2 = stmt2.executeQuery(query2);// gets the admin name if it exists from the query
+//			
+//			if(rs.next())
+//				userName2Check = rs.getString("userName");
+//			
+//			if( userName.equals(userName2Check)/* userName is in db */ && isValidUser(adminName, adminPW) ){
+//				if(rs2.next())
+//					adminName2Check = rs2.getString("adminName");
+//				if(adminName.equals(adminName2Check) /* adminName is set as an admin of userName in db */)
+//					storedPW = rs2.getBytes("password"); // get password for userName from db
+//					salt = rs2.getBytes("salt");
+//					return Arrays.equals(Hash.getStretchedSHA256(adminPW, salt, AuthServer.stretchLength), storedPW);
+//			}
+//			else
+//				return false;
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return false;
+//			//if adminname is and admin of a user who is an admin of userName return true
+//			// potential exemplary query here
+//	}
 	
 	/**
 	 * note: this exception should only be thrown as part of the authentication process
