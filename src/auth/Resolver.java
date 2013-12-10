@@ -55,12 +55,12 @@ public class Resolver {
 	 */
 	public Resolver() {
 		// TODO Auto-generated constructor stub
-//		try {
-//			Class.forName("com.mysql.jdbc.Driver");
-//		} catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private Connection getConnection(String sqlUserName, String sqlUserPassword) throws SQLException{
