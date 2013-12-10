@@ -22,10 +22,8 @@ import org.eclipse.swt.widgets.*;
 import util.Misc;
 import auth.*;
 
-public class QResults {
+public class QResults extends Shell{
 
-	protected Shell qresultshell;
-	protected Shell parentshell;
 	private AuthClient portclient;
 	private static java.sql.Connection connect;
 	private static java.sql.Statement statement;
@@ -34,7 +32,7 @@ public class QResults {
 	private static final String serverAddress = "vodkapi.dyndns.info";
 	private static final int PORT = 3306;
 	private static final String DATABASE = "Portunes";
-	private static String query = "Select * from Admin";
+	private static String query = "Select * from User";
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	private Table table;
@@ -44,24 +42,15 @@ public class QResults {
 	private Button edit_button;
 	private Display display;
 
-	public QResults(AuthClient a, Session b) {
+
+	public QResults(Display d,String q,AuthClient a, Session b) {
+		super(d,SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
+		display = d;
+		query = q;
 		portclient = a;
 		session = b;
-	}
-
-	/**
-	 * Open the window.
-	 */
-	public void open() {
-		display = display.getDefault();
+		
 		createContents();
-		qresultshell.open();
-		qresultshell.layout();
-		while (!qresultshell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
 	}
 
 	/**
@@ -71,11 +60,10 @@ public class QResults {
 	 */
 	protected void createContents() {
 
-		qresultshell = new Shell();
-		qresultshell.setSize(788, 437);
-		qresultshell.setText("Results");
+		setSize(788, 437);
+		setText("Results");
 
-		Composite _Results_comp = new Composite(qresultshell, SWT.NONE);
+		Composite _Results_comp = new Composite(this, SWT.NONE);
 		_Results_comp.setBounds(0, 0, 772, 398);
 
 		done_button = new Button(_Results_comp, SWT.NONE);
@@ -94,10 +82,11 @@ public class QResults {
 		table.setBounds(10, 10, 752, 328);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
+		
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		handleQuery();
 
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
 
 		// {
 		// TableColumn tblclmnNos = new TableColumn(table, SWT.NONE);
@@ -138,9 +127,11 @@ public class QResults {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == done_button) {
-				display.dispose();
+				while (!display.readAndDispatch()) 
+					display.sleep();
 			} else if (e.getSource() == edit_button) {
-
+				AEdit editchild = new AEdit(display);
+				editchild.open();
 			}
 		}
 	}
@@ -157,12 +148,12 @@ public class QResults {
 
 			buildTable(resultSet);
 
-			while (resultSet.next()) {
-				TableItem item = new TableItem(table, SWT.NONE);
-				item.setText(new String[] { resultSet.getString(1),
-						resultSet.getString(2), resultSet.getString(3),
-						resultSet.getString(4) });
-			}
+//			while (resultSet.next()) {
+//				TableItem item = new TableItem(table, SWT.NONE);
+//				item.setText(new String[] { resultSet.getString(1),
+//						resultSet.getString(2), resultSet.getString(3),
+//						resultSet.getString(4) });
+//			}
 
 			connect.close();
 		} catch (SQLException e) {
@@ -230,5 +221,9 @@ public class QResults {
 		// e.printStackTrace();
 		// }
 
+	}
+	@Override
+	protected void checkSubclass() {
+		// Disable the check that prevents subclassing of SWT components
 	}
 }

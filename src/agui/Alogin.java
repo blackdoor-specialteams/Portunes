@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Button;
 public class Alogin {
 
 	protected Shell Alogin;
-	public boolean login_status = false;
 	private Text username_text;
 	private Text password_text;
 	private AuthClient portclient;
@@ -37,7 +36,7 @@ public class Alogin {
 		session = b;
 	}
 
-	public boolean open() {
+	public void open() {
 		display = Display.getDefault();
 		createContents();
 		Alogin.open();
@@ -47,7 +46,6 @@ public class Alogin {
 				display.sleep();
 			}
 		}
-		return login_status;
 	}
 
 	/**

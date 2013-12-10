@@ -33,7 +33,7 @@ public class AHome {
 	private Text ua_pass_text;
 	private Text ua_cpass_text;
 	private AuthClient portclient;
-	private String query;
+	public String runquery;
 
 	private Button _US_radio;
 	private Button _DB_radio;
@@ -45,6 +45,7 @@ public class AHome {
 	private Group _DBSrch_Grp;
 	private Display display;
 	public boolean querytodo = false;
+	public boolean stillworking = true;
 
 	private Session session;
 
@@ -132,7 +133,7 @@ public class AHome {
 		showResults_button = new Button(_Search_comp, SWT.NONE);
 		showResults_button.setBounds(235, 282, 130, 39);
 		showResults_button.setText("Show Results");
-		showResults_button.addSelectionListener(new DatabaseSearchButton());
+		showResults_button.addSelectionListener(new ResultButton());
 
 		TabItem _Add_tab = new TabItem(_home_tabs, SWT.NONE);
 		_Add_tab.setText("Add New User");
@@ -195,23 +196,9 @@ public class AHome {
 		Menu menu = new Menu(mntmFile);
 		mntmFile.setMenu(menu);
 
-		MenuItem mntmChangeUser = new MenuItem(menu, SWT.NONE);
-		mntmChangeUser.setText("Logout");
-
 		MenuItem mntmExit = new MenuItem(menu, SWT.NONE);
 		mntmExit.setText("Exit");
-
-		MenuItem mntmEdit = new MenuItem(_home_menu, SWT.CASCADE);
-		mntmEdit.setText("Edit");
-
-		Menu menu_1 = new Menu(mntmEdit);
-		mntmEdit.setMenu(menu_1);
-
-		MenuItem mntmAbout = new MenuItem(_home_menu, SWT.NONE);
-		mntmAbout.setText("About");
-
-		MenuItem mntmHelp = new MenuItem(_home_menu, SWT.NONE);
-		mntmHelp.setText("Help");
+		mntmExit.addSelectionListener(new MenuListener());
 
 	}
 
@@ -226,12 +213,27 @@ public class AHome {
 				_USuname_tbox.setEnabled(false);
 				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
-			} else if (e.getSource() == showResults_button)
-				querytodo = true;
-				display.dispose();
-
+			} 
 		}
 	}
+		
+	public class ResultButton extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+						querytodo = true;
+						runquery = "SELECT * FROM User WHERE userName = \"" + _USuname_tbox.getText() + "\";" ; 
+								//" OR name =" + _USuname_tbox.getText() + ";";
+						QResults results = new QResults(display,runquery,portclient,session);
+						results.open();	
+				}
+		}
+	public class MenuListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+						display.dispose();
+					
+				}
+		}
 
 	public class UserAddListener extends SelectionAdapter {
 		@Override
