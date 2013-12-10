@@ -7,6 +7,8 @@ public class CHECKADMIN extends CHECK {
 		// TODO Auto-generated constructor stub
 		this.admin = true;
 		this.operation = operation.CHECKADMIN;
+		this.adminName= adminName;
+		this.adminPW = adminPassword;
 	}
 
 }
