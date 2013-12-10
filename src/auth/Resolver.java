@@ -6,6 +6,7 @@ package auth;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -349,8 +350,8 @@ public class Resolver {
 		Map<String, Object> reply = new HashMap<String, Object>();
 		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
 				+"' AND l.index = ((h.lastLoginIndex - "+ request.time+") MOD h.length) ;"; // the history on the user with a specific username
-		int hid, ip, month, day, year, hours, minutes;
-		
+		int hid, month, day, year, hours, minutes;
+		InetAddress ip = null;
 		try {
 			if(connection == null)
 				connect();
@@ -358,19 +359,25 @@ public class Resolver {
 			ResultSet rs = stmt.executeQuery(query);
 			if(rs.next()){
 				hid = rs.getInt("hid");
-				ip = rs.getInt("ip");
+				try {
+					ip = InetAddress.getByName(rs.getString("ip"));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				month = rs.getInt("month");
 				day = rs.getInt("day");
 				year = rs.getInt("year");
 				hours = rs.getInt("hours");
 				minutes = rs.getInt("minutes");
-				reply.put("HID", hid);
-				reply.put("IP", ip);
-				reply.put("MONTH", month);
-				reply.put("DAY", day);
-				reply.put("YEAR", year);
-				reply.put("HOURS", hours);
-				reply.put("MINUTES",minutes);
+				reply.put("userName", request.username);
+				reply.put("hid", hid);
+				reply.put("ip", ip);
+				reply.put("month", month);
+				reply.put("day", day);
+				reply.put("year", year);
+				reply.put("hours", hours);
+				reply.put("minutes",minutes);
 			}
 			return reply;
 			
