@@ -443,7 +443,7 @@ public class Resolver {
 	
 	private boolean isAdmin(String adminName){
 		String query = "SELECT * " +
-				"FROM Admin JOIN User ON adminName = userName " +
+				"FROM Admin JOIN User ON adminName = User.userName " +
 				"WHERE adminName = '" + adminName + "' ";
 		try {
 			connect();
