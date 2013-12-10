@@ -31,9 +31,9 @@ public class Test {
 		AuthClient client = new AuthClient("localhost", 1234);
 		Request req = new CHECK("jane", Hash.getSHA256("password".getBytes("UTF-8")));
 		//StopWatch time = new StopWatch(true);
-		//Request rep = client.exchange(req);
+		Request rep = client.exchange(req);
 		//System.out.println("exchange time: " + time.checkMS() + "ms");
-		System.out.println(req);
+		System.out.println(rep);
 		//Request req1 = new ADD("jane", "alice cooper", Hash.getSHA256("password".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
 		//System.out.println(client.exchange(req1));
 		//Request req2 = new REMOVE("jane");
