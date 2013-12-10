@@ -1,9 +1,12 @@
 package agui;
 
+import java.io.UnsupportedEncodingException;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Menu;
@@ -16,29 +19,35 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import auth.*;
+import auth.Resolver.UserNotFoundException;
 
 public class AHome {
 
 	protected Shell shlPortunesAdministrator;
 	private Text _USuname_tbox;
 	private Text _USname_tbox;
-	private Text text_2;
-	private Text text_3;
-	private Text text_4;
-	private Text text_5;
+	private Text ua_uname_text;
+	private Text ua_name_text;
+	private Text ua_pass_text;
+	private Text ua_cpass_text;
 	private AuthClient portclient;
 	private String query;
 
 	private Button _US_radio;
 	private Button _DB_radio;
 	private Button _DBquery_button;
-	private Button _add_button;
+	private Button add_button;
+	private Button clear_button;
 	private Button showResults_button;
 	private Group _UserSrch_Grp;
 	private Group _DBSrch_Grp;
+	
+	private Session session;
 
-	public AHome(AuthClient a) {
+	public AHome(AuthClient a, Session tempsession) {
 		portclient = a;
+		session = tempsession;
+		new Sanitizer();
 	}
 
 	/**
@@ -148,29 +157,29 @@ public class AHome {
 		_NWcpw_lbl.setBounds(39, 115, 90, 15);
 		_NWcpw_lbl.setText("Confirm Password:");
 
-		text_2 = new Text(_NW_grp, SWT.BORDER);
-		text_2.setBounds(97, 27, 210, 21);
+		ua_uname_text = new Text(_NW_grp, SWT.BORDER);
+		ua_uname_text.setBounds(97, 27, 210, 21);
 
-		text_3 = new Text(_NW_grp, SWT.BORDER);
-		text_3.setBounds(79, 54, 228, 21);
+		ua_name_text = new Text(_NW_grp, SWT.BORDER);
+		ua_name_text.setBounds(79, 54, 228, 21);
 
-		text_4 = new Text(_NW_grp, SWT.BORDER);
-		text_4.setBounds(97, 87, 210, 21);
+		ua_pass_text = new Text(_NW_grp, SWT.BORDER);
+		ua_pass_text.setBounds(97, 87, 210, 21);
 
-		text_5 = new Text(_NW_grp, SWT.BORDER);
-		text_5.setBounds(132, 112, 175, 21);
+		ua_cpass_text = new Text(_NW_grp, SWT.BORDER);
+		ua_cpass_text.setBounds(132, 112, 175, 21);
 
 		Label _Err_label = new Label(composite_1, SWT.NONE);
 		_Err_label.setBounds(25, 21, 244, 15);
 		_Err_label.setText("Error Label right here ");
 
-		_add_button = new Button(composite_1, SWT.NONE);
-		_add_button.setBounds(247, 261, 117, 52);
-		_add_button.setText("Add User");
+		add_button = new Button(composite_1, SWT.NONE);
+		add_button.setBounds(247, 261, 117, 52);
+		add_button.setText("Add User");
 
-		Button _clear_button = new Button(composite_1, SWT.NONE);
-		_clear_button.setBounds(10, 261, 117, 52);
-		_clear_button.setText("Clear");
+		clear_button = new Button(composite_1, SWT.NONE);
+		clear_button.setBounds(10, 261, 117, 52);
+		clear_button.setText("Clear");
 
 		Menu _home_menu = new Menu(shlPortunesAdministrator, SWT.BAR);
 		shlPortunesAdministrator.setMenuBar(_home_menu);
@@ -221,6 +230,50 @@ public class AHome {
 				}
 			} else if (e.getSource() == showResults_button) {
 
+			}
+		}
+	}
+	
+	public class UserAddListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if(e.getSource() == add_button){
+				String username = ua_uname_text.getText();
+				String name = ua_name_text.getText();
+				String pass = ua_pass_text.getText();
+				
+				 if(pass == ua_cpass_text.getText()){
+					 if(Sanitizer.isCleanInput(username) && Sanitizer.isCleanInput(name) && Sanitizer.isCleanInput(pass)){
+						 ADD newuser = null;
+						try {
+							newuser = new ADD(username,name,pass.getBytes("UTF-8"),
+									 session.getName(),session.getPass().getBytes("UTF-8"));
+						} catch (UnsupportedEncodingException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+			}
+						 try {
+							portclient.exchange(newuser);
+						} catch (UserNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					 }
+					 else{
+							MessageBox messageBox = new MessageBox(shlPortunesAdministrator,SWT.ICON_ERROR);
+							messageBox.setMessage("Invalid Input(s).");
+							messageBox.open();
+					 }
+
+				 }else{
+						MessageBox messageBox = new MessageBox(shlPortunesAdministrator,SWT.ICON_ERROR);
+						messageBox.setMessage("Passwords do not match.");
+						messageBox.open();
+					 
+				 }
+			}
+			else if(e.getSource() == clear_button){
+				
 			}
 		}
 	}

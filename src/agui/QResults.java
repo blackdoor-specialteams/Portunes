@@ -38,6 +38,10 @@ public class QResults {
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	private Table table;
+	
+	private Button done_button;
+	private Button edit_button;
+	private Display display;
 
 	public QResults(AuthClient a) {
 		portclient = a;
@@ -47,7 +51,7 @@ public class QResults {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
+		display = Display.getDefault();
 		createContents();
 		_QResults_swt.open();
 		_QResults_swt.layout();
@@ -71,13 +75,15 @@ public class QResults {
 		Composite _Results_comp = new Composite(_QResults_swt, SWT.NONE);
 		_Results_comp.setBounds(0, 0, 772, 398);
 
-		Button btnNewButton = new Button(_Results_comp, SWT.NONE);
-		btnNewButton.setBounds(626, 334, 136, 54);
-		btnNewButton.setText("Done");
+		done_button = new Button(_Results_comp, SWT.NONE);
+		done_button.setBounds(626, 334, 136, 54);
+		done_button.setText("Done");
+		done_button.addSelectionListener(new Choicelistener());
 
-		Button btnNewButton_1 = new Button(_Results_comp, SWT.NONE);
-		btnNewButton_1.setBounds(10, 334, 128, 54);
-		btnNewButton_1.setText("Edit Selected");
+		edit_button = new Button(_Results_comp, SWT.NONE);
+		edit_button.setBounds(10, 334, 128, 54);
+		edit_button.setText("Edit Selected");
+		edit_button.addSelectionListener(new Choicelistener());
 
 		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION
 				| SWT.VIRTUAL);
@@ -124,6 +130,17 @@ public class QResults {
 
 		}
 	}
+	
+	public class Choicelistener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.getSource() == done_button) {
+				 display.dispose();
+			} else if (e.getSource() == edit_button) {
+
+			}
+		}
+	}
 
 	private void handleQuery() {
 		table.setItemCount(0);
@@ -133,12 +150,12 @@ public class QResults {
 					PASSWORD);
 			System.out.println("Connecting succesfully");
 			statement = connect.createStatement();
-			resultSet = statement.executeQuery("Select * from admin");
+			resultSet = statement.executeQuery("Select * from User");
 			while (resultSet.next()) {
 				TableItem item = new TableItem(table, SWT.NONE);
 				item.setText(new String[] { resultSet.getString(1),
 						resultSet.getString(2), resultSet.getString(3),
-						resultSet.getString(4), resultSet.getString(5) });
+						resultSet.getString(4) });
 			}
 			connect.close();
 		} catch (SQLException e) {

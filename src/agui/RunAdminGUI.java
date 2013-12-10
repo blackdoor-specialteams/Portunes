@@ -3,20 +3,21 @@ package agui;
 import auth.*;
 
 public class RunAdminGUI {
-	final static private String servername = "vodkapi.dyndns";
-	final static private int serverport = 3306;
+	private static final String serverAddress = "vodkapi.dyndns.info";
+	private static final int PORT = 3306;;
 	public static AuthClient myclient;
+	public static Session mysession;
 
 	public static void main(String[] args) {
 
-		myclient = new AuthClient(servername, serverport);
+		myclient = new AuthClient(serverAddress, PORT);
+		mysession = new Session();
 
-	//	Alogin login = new Alogin(myclient);
-		QResults test = new QResults(myclient);
-		test.open();
-	//	if (login.open()) {
-			//AHome home = new AHome(myclient);
-			//home.open();
-	//	}
+		Alogin login = new Alogin(myclient,mysession);
+		login.open();
+		if (mysession.isAuthorized()) {
+			AHome home = new AHome(myclient,mysession);
+			home.open();
+		}
 	}
 }
