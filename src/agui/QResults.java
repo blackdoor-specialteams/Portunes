@@ -2,11 +2,15 @@ package agui;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.table.TableColumn;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -14,9 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
-
 import org.eclipse.swt.widgets.Button;
-
 
 import auth.*;
 
@@ -32,7 +34,7 @@ public class QResults {
 	private static final String serverAddress = "vodkapi.dyndns.info";
 	private static final int PORT = 3306;
 	private static final String DATABASE = "Portunes";
-	private static String query = "Empty default query";
+	private static String query = "Select * from User";
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	private Table table;
@@ -42,8 +44,7 @@ public class QResults {
 	private Button edit_button;
 	private Display display;
 
-	public QResults(Shell d,AuthClient a,Session b) {
-		parentshell = d;
+	public QResults(AuthClient a,Session b) {
 		portclient = a;
 		session = b;
 	}
@@ -52,6 +53,7 @@ public class QResults {
 	 * Open the window.
 	 */
 	public void open() {
+		display = display.getDefault();
 		createContents();
 		qresultshell.open();
 		qresultshell.layout();
@@ -69,11 +71,11 @@ public class QResults {
 	 */
 	protected void createContents() {
 
-		qresultshell = new Shell(parentshell,SWT.ON_TOP);
+		qresultshell = new Shell();
 		qresultshell.setSize(788, 437);
 		qresultshell.setText("Results");
 
-		Composite _Results_comp = new Composite(qresultshell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		Composite _Results_comp = new Composite(qresultshell, SWT.NONE);
 		_Results_comp.setBounds(0, 0, 772, 398);
 
 		done_button = new Button(_Results_comp, SWT.NONE);
@@ -150,13 +152,20 @@ public class QResults {
 					PASSWORD);
 			System.out.println("Connecting succesfully");
 			statement = connect.createStatement();
-			resultSet = statement.executeQuery("Select * from User");
+			resultSet = statement.executeQuery(query);
+			
+			buildTable(resultSet);
+			
+			
+			
 			while (resultSet.next()) {
 				TableItem item = new TableItem(table, SWT.NONE);
 				item.setText(new String[] { resultSet.getString(1),
 						resultSet.getString(2), resultSet.getString(3),
 						resultSet.getString(4)});
 			}
+			
+			
 			connect.close();
 		} catch (SQLException e) {
 			System.out.println("Cannot connect to database server");
@@ -164,5 +173,24 @@ public class QResults {
 			System.out.println("SQLState: " + e.getSQLState());
 			System.out.println("VendorError: " + e.getErrorCode());
 		}
+	}
+	private void buildTable(ResultSet rs){
+		List<TableColumn> tablecollist = new ArrayList<TableColumn>();
+		
+		ResultSetMetaData metaData = null;
+		try {
+			metaData = resultSet.getMetaData();
+			int count = metaData.getColumnCount(); //number of column
+			String columnName[] = new String[count];
+
+			for (int i = 1; i <= count; i++)
+			{
+			   columnName[i-1] = metaData.getColumnLabel(i); 
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

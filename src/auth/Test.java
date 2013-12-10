@@ -34,8 +34,8 @@ public class Test {
 		Request rep = client.exchange(req);
 		//System.out.println("exchange time: " + time.checkMS() + "ms");
 		System.out.println(rep);
-		//Request req1 = new ADD("jane", "alice cooper", Hash.getSHA256("password".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
-		//System.out.println(client.exchange(req1));
+		Request req1 = new ADD("wasd", "alice cooper", Hash.getSHA256("wasd".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
+		System.out.println(client.exchange(req1));
 		//Request req2 = new REMOVE("jane");
 		//req2.admin=false;
 		//req2.userPW =  Hash.getSHA256("password".getBytes("UTF-8"));

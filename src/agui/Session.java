@@ -10,10 +10,12 @@ public class Session {
 	private String adminname;
 	private String adminpass;
 	private boolean authorized;
+	private byte[] adminhashpass;
 
 	public Session() {
 		adminname = "";
 		adminpass = "";
+		//adminhashpass = new byte[];
 		authorized = false;
 	}
 
@@ -32,14 +34,24 @@ public class Session {
 			e1.printStackTrace();
 		}
 		if(loginattempt.reply){
-			adminname = user;
-			adminpass = pass;
-			authorized = true;
+			
+			try {
+				adminhashpass = Hash.getSHA256(pass.getBytes("UTF-8"));
+				adminname = user;
+				authorized = true;
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("failed to authorize and add session");
+				e.printStackTrace();
+			}
+			
 		}
 	}
 	
 	public boolean isAuthorized(){
 		return authorized;
+	}
+	public byte[] getPassHash(){
+		return adminhashpass;
 	}
 	public String getName(){
 		return adminname;

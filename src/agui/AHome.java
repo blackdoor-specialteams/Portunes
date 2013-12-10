@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import util.Hash;
+import util.Misc;
 import auth.*;
 import auth.Resolver.UserNotFoundException;
 
@@ -43,6 +44,7 @@ public class AHome {
 	private Group _UserSrch_Grp;
 	private Group _DBSrch_Grp;
 	private Display display;
+	public boolean querytodo = false;
 
 	private Session session;
 
@@ -73,8 +75,7 @@ public class AHome {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shlPortunesAdministrator = new Shell(SWT.CLOSE | SWT.TITLE
-				| SWT.PRIMARY_MODAL);
+		shlPortunesAdministrator = new Shell(SWT.CLOSE | SWT.TITLE);
 		shlPortunesAdministrator.setSize(388, 411);
 		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 
@@ -225,11 +226,10 @@ public class AHome {
 				_USuname_tbox.setEnabled(false);
 				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
-			} else if (e.getSource() == showResults_button) {
-				openQResults(); 
-			} else if (e.getSource() == showResults_button) {
+			} else if (e.getSource() == showResults_button)
+				querytodo = true;
+				display.dispose();
 
-			}
 		}
 	}
 
@@ -248,10 +248,12 @@ public class AHome {
 							&& Sanitizer.isCleanInput(pass)) {
 						ADD newuser = null;
 						try {
-							newuser = new ADD(username, name,
-									Hash.getSHA256(pass.getBytes("UTF-8")),
-									session.getName(), Hash.getSHA256(session
-											.getPass().getBytes("UTF-8")));
+							newuser = new ADD(username, name,Hash.getSHA256(pass.getBytes("UTF-8")),session.getName(),session.getPassHash());
+							System.out.println(Misc.bytesToHex(newuser.adminPW));
+							System.out.println(Misc.bytesToHex(Hash.getSHA256("password1".getBytes("UTF-8"))));
+						//	byte[] ditto = Hash.getSHA256("password1".getBytes("UTF-8"));
+							//newuser.adminPW = ditto;
+							
 						} catch (UnsupportedEncodingException e2) {
 							System.out.println("nope");
 							e2.printStackTrace();
@@ -284,10 +286,4 @@ public class AHome {
 			}
 		}
 	}
-	private void openQResults() 
-    {
-		QResults child = new QResults(shlPortunesAdministrator,portclient,session);
-        child.open();
-    }
-	
 }

@@ -15,7 +15,7 @@ public class RunAdminGUI {
 
 //		QResults a = new QResults(myclient,mysession);
 //		a.open();
-//		
+		
 		Alogin login = new Alogin(myclient,mysession);
 		login.open();
 		if (mysession.isAuthorized()) {
