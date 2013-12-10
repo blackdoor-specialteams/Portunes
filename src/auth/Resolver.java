@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.security.SecureRandom;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -17,7 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import com.mysql.jdbc.Statement;
+import javax.xml.bind.DatatypeConverter;
+
+//import com.mysql.jdbc.*;
 
 
 
@@ -50,6 +56,12 @@ public class Resolver {
 	 */
 	public Resolver() {
 		// TODO Auto-generated constructor stub
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private Connection getConnection(String sqlUserName, String sqlUserPassword) throws SQLException{
@@ -78,7 +90,7 @@ public class Resolver {
 			if(connection == null)
 				connect();//connection = getConnection(USERNAME, PASSWORD);
 			String query = "SELECT salt FROM User WHERE userName = '" + userName + "';";
-			Statement stmt = connection.createStatement();
+			Statement stmt = (Statement) connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
 			if(rs.next())
 			{
@@ -147,7 +159,7 @@ public class Resolver {
 				request.setReply(isValidUser(request.username, request.userPW));
 				//TODO if !admin request, call recordLogin
 				if(!request.admin)
-					recordLogin(request.origin, request.username);
+					//recordLogin(request.origin, request.username);
 				break;
 			case CHANGENAME://TODO
 				if(!request.admin){
@@ -197,12 +209,12 @@ public class Resolver {
 		return request;
 	}
 	
-	private boolean makeAdmin(String adminName, String userName) throws SQLException{
+	private boolean makeAdmin(String adminName, String userName){
 //		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
-		if(connection == null)
-			connect();
-		Statement stmt = connection.createStatement();
+		
 		try {
+			connect();
+			Statement stmt = connection.createStatement();
 			stmt.executeUpdate("INSERT INTO Admin values(" + adminName + "," + userName + ");");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -411,10 +423,14 @@ public class Resolver {
 			if(rs.next()){
 				byte[] storedPW = rs.getBytes("password"); // get password for userName from db
 				byte[] salt = rs.getBytes("salt");
-				return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
+				byte[] computedPW = Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength);
+				System.out.println(DatatypeConverter.printHexBinary(password) +"\nserver " + DatatypeConverter.printHexBinary(storedPW) + "\n" +
+						"compu " + DatatypeConverter.printHexBinary(computedPW) + "\n" +
+						DatatypeConverter.printHexBinary(password) + " " + DatatypeConverter.printHexBinary(salt));
+				return Arrays.equals(computedPW, storedPW);
 			}
-			else
-				return false;
+			//else
+				//return false;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
