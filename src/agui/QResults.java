@@ -85,8 +85,7 @@ public class QResults {
 		edit_button.setText("Edit Selected");
 		edit_button.addSelectionListener(new Choicelistener());
 
-		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION
-				| SWT.VIRTUAL);
+		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION | SWT.VIRTUAL);
 		table.addListener(SWT.Selection, new Tablelistener());
 		table.setBounds(10, 0, 752, 328);
 		table.setHeaderVisible(true);

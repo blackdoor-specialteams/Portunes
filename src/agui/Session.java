@@ -2,6 +2,7 @@ package agui;
 
 import java.io.UnsupportedEncodingException;
 
+import util.Hash;
 import auth.AuthClient;
 import auth.CHECK;
 import auth.Resolver.UserNotFoundException;
@@ -20,7 +21,7 @@ public class Session {
 	public void Authorize(AuthClient sessionclient, String user, String pass) {
 		CHECK loginattempt = null;
 		try {
-			loginattempt = new CHECK(user, pass.getBytes("UTF-8"));
+			loginattempt = new CHECK(user, Hash.getSHA256(pass.getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

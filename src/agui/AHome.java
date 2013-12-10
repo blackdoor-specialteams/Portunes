@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import util.Hash;
 import auth.*;
 import auth.Resolver.UserNotFoundException;
 
@@ -41,7 +42,7 @@ public class AHome {
 	private Button showResults_button;
 	private Group _UserSrch_Grp;
 	private Group _DBSrch_Grp;
-	
+
 	private Session session;
 
 	public AHome(AuthClient a, Session tempsession) {
@@ -176,10 +177,12 @@ public class AHome {
 		add_button = new Button(composite_1, SWT.NONE);
 		add_button.setBounds(247, 261, 117, 52);
 		add_button.setText("Add User");
+		add_button.addSelectionListener(new UserAddListener());
 
 		clear_button = new Button(composite_1, SWT.NONE);
 		clear_button.setBounds(10, 261, 117, 52);
 		clear_button.setText("Clear");
+		clear_button.addSelectionListener(new UserAddListener());
 
 		Menu _home_menu = new Menu(shlPortunesAdministrator, SWT.BAR);
 		shlPortunesAdministrator.setMenuBar(_home_menu);
@@ -226,54 +229,62 @@ public class AHome {
 				if (_US_radio.getSelection()) {
 					results.open();
 				} else if (_DB_radio.getSelection()) {
-					//results.open();
+					// results.open();
 				}
 			} else if (e.getSource() == showResults_button) {
 
 			}
 		}
 	}
-	
+
 	public class UserAddListener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			if(e.getSource() == add_button){
+			if (e.getSource() == add_button) {
 				String username = ua_uname_text.getText();
 				String name = ua_name_text.getText();
 				String pass = ua_pass_text.getText();
-				
-				 if(pass == ua_cpass_text.getText()){
-					 if(Sanitizer.isCleanInput(username) && Sanitizer.isCleanInput(name) && Sanitizer.isCleanInput(pass)){
-						 ADD newuser = null;
+				String confirm = ua_cpass_text.getText();
+
+				if (pass.equals(confirm)) {
+					if (Sanitizer.isCleanInput(username)
+							&& Sanitizer.isCleanInput(name)
+							&& Sanitizer.isCleanInput(pass)) {
+						ADD newuser = null;
 						try {
-							newuser = new ADD(username,name,pass.getBytes("UTF-8"),
-									 session.getName(),session.getPass().getBytes("UTF-8"));
+							newuser = new ADD(username, name,
+									Hash.getSHA256(pass.getBytes("UTF-8")),
+									session.getName(), Hash.getSHA256(session
+											.getPass().getBytes("UTF-8")));
 						} catch (UnsupportedEncodingException e2) {
 							// TODO Auto-generated catch block
 							e2.printStackTrace();
-			}
-						 try {
+						}
+						try {
 							portclient.exchange(newuser);
 						} catch (UserNotFoundException e1) {
-							// TODO Auto-generated catch block
+							System.out.println("did not go through, sorry");
 							e1.printStackTrace();
 						}
-					 }
-					 else{
-							MessageBox messageBox = new MessageBox(shlPortunesAdministrator,SWT.ICON_ERROR);
-							messageBox.setMessage("Invalid Input(s).");
-							messageBox.open();
-					 }
-
-				 }else{
-						MessageBox messageBox = new MessageBox(shlPortunesAdministrator,SWT.ICON_ERROR);
-						messageBox.setMessage("Passwords do not match.");
+					} else {
+						MessageBox messageBox = new MessageBox(
+								shlPortunesAdministrator, SWT.ICON_ERROR);
+						messageBox.setMessage("Invalid Input(s).");
 						messageBox.open();
-					 
-				 }
-			}
-			else if(e.getSource() == clear_button){
-				
+					}
+
+				} else {
+					MessageBox messageBox = new MessageBox(
+							shlPortunesAdministrator, SWT.ICON_ERROR);
+					messageBox.setMessage("Passwords do not match.");
+					messageBox.open();
+
+				}
+			} else if (e.getSource() == clear_button) {
+				ua_uname_text.clearSelection();
+				ua_name_text.clearSelection();
+				ua_pass_text.clearSelection();
+				ua_cpass_text.clearSelection();
 			}
 		}
 	}
