@@ -7,19 +7,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.table.TableColumn;
-
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Decorations;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.*;
 
+import util.Misc;
 import auth.*;
 
 public class QResults {
@@ -34,17 +34,17 @@ public class QResults {
 	private static final String serverAddress = "vodkapi.dyndns.info";
 	private static final int PORT = 3306;
 	private static final String DATABASE = "Portunes";
-	private static String query = "Select * from User";
+	private static String query = "Select * from Admin";
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	private Table table;
 	private Session session;
-	
+
 	private Button done_button;
 	private Button edit_button;
 	private Display display;
 
-	public QResults(AuthClient a,Session b) {
+	public QResults(AuthClient a, Session b) {
 		portclient = a;
 		session = b;
 	}
@@ -79,25 +79,26 @@ public class QResults {
 		_Results_comp.setBounds(0, 0, 772, 398);
 
 		done_button = new Button(_Results_comp, SWT.NONE);
-		done_button.setBounds(626, 334, 136, 54);
+		done_button.setBounds(626, 344, 136, 54);
 		done_button.setText("Done");
 		done_button.addSelectionListener(new Choicelistener());
 
 		edit_button = new Button(_Results_comp, SWT.NONE);
-		edit_button.setBounds(10, 334, 128, 54);
+		edit_button.setBounds(10, 344, 128, 54);
 		edit_button.setText("Edit Selected");
 		edit_button.addSelectionListener(new Choicelistener());
 
-		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION | SWT.VIRTUAL);
+		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION
+				| SWT.VIRTUAL);
 		table.addListener(SWT.Selection, new Tablelistener());
-		table.setBounds(10, 0, 752, 328);
+		table.setBounds(10, 10, 752, 328);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
 		handleQuery();
 
-		// table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
-		// 1));
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
 		// {
 		// TableColumn tblclmnNos = new TableColumn(table, SWT.NONE);
 		// tblclmnNos.setWidth(100);
@@ -113,7 +114,7 @@ public class QResults {
 		// tblclmnEname.setWidth(100);
 		// tblclmnEname.setText("Admin Name");
 		// }
-		// {
+		// // {
 		// TableColumn tblclmnAge = new TableColumn(table, SWT.NONE);
 		// tblclmnAge.setWidth(100);
 		// tblclmnAge.setText("Login Name");
@@ -132,12 +133,12 @@ public class QResults {
 
 		}
 	}
-	
+
 	public class Choicelistener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == done_button) {
-				 display.dispose();
+				display.dispose();
 			} else if (e.getSource() == edit_button) {
 
 			}
@@ -153,19 +154,16 @@ public class QResults {
 			System.out.println("Connecting succesfully");
 			statement = connect.createStatement();
 			resultSet = statement.executeQuery(query);
-			
+
 			buildTable(resultSet);
-			
-			
-			
+
 			while (resultSet.next()) {
 				TableItem item = new TableItem(table, SWT.NONE);
 				item.setText(new String[] { resultSet.getString(1),
 						resultSet.getString(2), resultSet.getString(3),
-						resultSet.getString(4)});
+						resultSet.getString(4) });
 			}
-			
-			
+
 			connect.close();
 		} catch (SQLException e) {
 			System.out.println("Cannot connect to database server");
@@ -174,23 +172,63 @@ public class QResults {
 			System.out.println("VendorError: " + e.getErrorCode());
 		}
 	}
-	private void buildTable(ResultSet rs){
-		List<TableColumn> tablecollist = new ArrayList<TableColumn>();
-		
+
+	private void buildTable(ResultSet rs) {
+		// List<TableColumn> tablecollist = new ArrayList<TableColumn>();
+
 		ResultSetMetaData metaData = null;
 		try {
 			metaData = resultSet.getMetaData();
-			int count = metaData.getColumnCount(); //number of column
-			String columnName[] = new String[count];
+			int count = metaData.getColumnCount();
 
-			for (int i = 1; i <= count; i++)
-			{
-			   columnName[i-1] = metaData.getColumnLabel(i); 
+			TableColumn[] columns = new TableColumn[count + 1];
+
+			for (int i = 0; i < count; i++) {
+				TableColumn column = new TableColumn(table, SWT.NONE);
+				column.setText(metaData.getColumnLabel(i +1));
+				column.setWidth(150);
+				column.setMoveable(true);
+				column.setResizable(true);
+				columns[i] = column;
 			}
-		} catch (SQLException e) {
+			
+			String[] tableitemsetter = new String[count];
+			
+			while (resultSet.next()) {
+				TableItem item = new TableItem(table, SWT.NONE);
+				for(int j = 0; j < count; j++){
+					tableitemsetter[j] = resultSet.getString(j+1);
+				}
+					
+				item.setText(tableitemsetter);
+			}
+			
+		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
+		// try {
+		// metaData = resultSet.getMetaData();
+		// int count = metaData.getColumnCount(); //number of column
+		//
+		// for (int i = 1; i <= count; i++)
+		// {
+		// tablecollist.add(new TableColumn());
+		// tablecollist.get(i).setWidth(100);
+		// tablecollist.get(i).setText(metaData.getColumnLabel(i));
+		// columnName[i-1] = metaData.getColumnLabel(i);
+		// }
+		//
+		// String columnName[] = new String[count];
+		//
+		// for (int i = 1; i <= count; i++)
+		// {
+		// columnName[i-1] = metaData.getColumnLabel(i);
+		// }
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 	}
 }

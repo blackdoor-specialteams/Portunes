@@ -15,7 +15,6 @@ public class Session {
 	public Session() {
 		adminname = "";
 		adminpass = "";
-		//adminhashpass = new byte[];
 		authorized = false;
 	}
 

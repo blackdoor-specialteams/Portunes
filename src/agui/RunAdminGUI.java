@@ -13,14 +13,14 @@ public class RunAdminGUI {
 		myclient = new AuthClient(serverAddress, PORT);
 		mysession = new Session();
 
-//		QResults a = new QResults(myclient,mysession);
-//		a.open();
+		QResults a = new QResults(myclient,mysession);
+		a.open();
 		
-		Alogin login = new Alogin(myclient,mysession);
-		login.open();
-		if (mysession.isAuthorized()) {
-			AHome home = new AHome(myclient,mysession);
-			home.open();
-		}
+//		Alogin login = new Alogin(myclient,mysession);
+//		login.open();
+//		if (mysession.isAuthorized()) {
+//			AHome home = new AHome(myclient,mysession);
+//			home.open();
+//		}
 	}
 }
