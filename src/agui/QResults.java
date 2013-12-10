@@ -138,8 +138,10 @@ public class QResults extends Shell{
 
 	private void handleQuery() {
 		table.setItemCount(0);
+		
 		try {
-			connect = DriverManager.getConnection("jdbc:mysql://"
+		//	portclient.e
+						connect = DriverManager.getConnection("jdbc:mysql://"
 					+ serverAddress + ":" + PORT + "/" + DATABASE, USERNAME,
 					PASSWORD);
 			System.out.println("Connecting succesfully");
