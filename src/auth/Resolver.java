@@ -16,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 //import com.mysql.jdbc.*;
+
 
 
 
@@ -212,7 +214,7 @@ public class Resolver {
 	}
 	
 	private boolean makeAdmin(String adminName, String userName){
-//		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
+		//		"INSERT INTO Admin values(" + adminName + "," + userName + ");"
 		
 		try {
 			connect();
@@ -329,7 +331,7 @@ public class Resolver {
 	private Map<String, Object> getInfo(GETINFO request){
 		// SELECT * FROM table WHERE user ="username" AND etc.
 		Map<String, Object> reply = new HashMap();
-		String query1 = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
+		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
 				+"' AND l.index = (h.lastLoginIndex - "+ request.time+") MOD h.length ;"; // the history on the user with a specific username
 		int hid, ip, month, day, year, hours, minutes;
 		
@@ -337,7 +339,7 @@ public class Resolver {
 			if(connection == null)
 				connect();
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query1);
+			ResultSet rs = stmt.executeQuery(query);
 			if(rs.next()){
 				hid = rs.getInt("hid");
 				ip = rs.getInt("ip");
@@ -362,14 +364,46 @@ public class Resolver {
 		return null;
 	}
 	private List<Map<String, Object>> getHistory(HISTORY request){
-		// get username
+		// while rs.next(){getInfo(request + 1 time)
 		// SELECT allPreviousLogins FROM table WHERE user = "username"
-		
+		List<Map<String, Object>> reply = new ArrayList();
+		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username+"';"; // the history on the user with a specific username
+		int hid, ip, month, day, year, hours, minutes, i;
+		i=0;
+		try {
+			if(connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			if(rs.next()){
+				hid = rs.getInt("hid");
+				ip = rs.getInt("ip");
+				month = rs.getInt("month");
+				day = rs.getInt("day");
+				year = rs.getInt("year");
+				hours = rs.getInt("hours");
+				minutes = rs.getInt("minutes");
+				reply.get(i).put("HID", hid);
+				reply.get(i).put("IP", ip);
+				reply.get(i).put("MONTH", month);
+				reply.get(i).put("DAY", day);
+				reply.get(i).put("YEAR", year);
+				reply.get(i).put("HOURS", hours);
+				reply.get(i).put("MINUTES",minutes);
+				i++;
+			}
+			return reply;
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}		
 		return null;
 	}
 	private List<Map<String, Object>> listUsers(GETINFO request){
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
+		
+		
 		return null;
 	}
 
