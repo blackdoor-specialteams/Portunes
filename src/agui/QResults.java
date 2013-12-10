@@ -42,8 +42,8 @@ public class QResults {
 	private Button edit_button;
 	private Display display;
 
-	public QResults(Display d,AuthClient a,Session b) {
-		display = d;
+	public QResults(Shell d,AuthClient a,Session b) {
+		parentshell = d;
 		portclient = a;
 		session = b;
 	}
@@ -68,11 +68,12 @@ public class QResults {
 	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
-		qresultshell = new Shell();
+
+		qresultshell = new Shell(parentshell,SWT.ON_TOP);
 		qresultshell.setSize(788, 437);
 		qresultshell.setText("Results");
 
-		Composite _Results_comp = new Composite(qresultshell, SWT.NONE);
+		Composite _Results_comp = new Composite(qresultshell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		_Results_comp.setBounds(0, 0, 772, 398);
 
 		done_button = new Button(_Results_comp, SWT.NONE);

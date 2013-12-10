@@ -286,7 +286,7 @@ public class AHome {
 	}
 	private void openQResults() 
     {
-		QResults child = new QResults(display,portclient,session);
+		QResults child = new QResults(shlPortunesAdministrator,portclient,session);
         child.open();
     }
 	
