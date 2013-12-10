@@ -3,8 +3,7 @@ package agui;
 import java.io.UnsupportedEncodingException;
 
 import util.Hash;
-import auth.AuthClient;
-import auth.CHECK;
+import auth.*;
 import auth.Resolver.UserNotFoundException;
 
 public class Session {
@@ -19,15 +18,15 @@ public class Session {
 	}
 
 	public void Authorize(AuthClient sessionclient, String user, String pass) {
-		CHECK loginattempt = null;
+		CHECKADMIN loginattempt = null;
 		try {
-			loginattempt = new CHECK(user, Hash.getSHA256(pass.getBytes("UTF-8")));
+			loginattempt = new CHECKADMIN(user, Hash.getSHA256(pass.getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		try {
-			loginattempt = (CHECK) sessionclient.exchange(loginattempt);
+			loginattempt = (CHECKADMIN) sessionclient.exchange(loginattempt);
 		} catch (UserNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

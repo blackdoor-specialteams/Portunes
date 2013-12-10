@@ -38,13 +38,15 @@ public class QResults {
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	private Table table;
+	private Session session;
 	
 	private Button done_button;
 	private Button edit_button;
 	private Display display;
 
-	public QResults(AuthClient a) {
+	public QResults(AuthClient a,Session b) {
 		portclient = a;
+		session = b;
 	}
 
 	/**
@@ -154,7 +156,7 @@ public class QResults {
 				TableItem item = new TableItem(table, SWT.NONE);
 				item.setText(new String[] { resultSet.getString(1),
 						resultSet.getString(2), resultSet.getString(3),
-						resultSet.getString(4) });
+						resultSet.getString(4)});
 			}
 			connect.close();
 		} catch (SQLException e) {

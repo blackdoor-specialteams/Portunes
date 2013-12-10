@@ -225,7 +225,7 @@ public class AHome {
 				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
 			} else if (e.getSource() == showResults_button) {
-				QResults results = new QResults(portclient);
+				QResults results = new QResults(portclient,session);
 				if (_US_radio.getSelection()) {
 					results.open();
 				} else if (_DB_radio.getSelection()) {
@@ -257,11 +257,11 @@ public class AHome {
 									session.getName(), Hash.getSHA256(session
 											.getPass().getBytes("UTF-8")));
 						} catch (UnsupportedEncodingException e2) {
-							// TODO Auto-generated catch block
+							System.out.println("nope");
 							e2.printStackTrace();
 						}
 						try {
-							portclient.exchange(newuser);
+							System.out.println(portclient.exchange(newuser));
 						} catch (UserNotFoundException e1) {
 							System.out.println("did not go through, sorry");
 							e1.printStackTrace();
@@ -281,10 +281,10 @@ public class AHome {
 
 				}
 			} else if (e.getSource() == clear_button) {
-				ua_uname_text.clearSelection();
-				ua_name_text.clearSelection();
-				ua_pass_text.clearSelection();
-				ua_cpass_text.clearSelection();
+				ua_uname_text.setText("");
+				ua_name_text.setText("");
+				ua_pass_text.setText("");
+				ua_cpass_text.setText("");
 			}
 		}
 	}
