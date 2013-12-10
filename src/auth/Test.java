@@ -13,7 +13,7 @@ import util.Watch.StopWatch;
 public class Test {
 
 	public static void main(String[] args) throws UserNotFoundException, UnsupportedEncodingException {
-
+		System.out.println(DatatypeConverter.printHexBinary(Hash.getStretchedSHA256("password".getBytes("UTF-8"), new byte[]{(byte)0x47,(byte)0x1F,(byte)0xDA,(byte)0x38,(byte)0xE8,(byte)0x32,(byte)0x9E,(byte)0x68,(byte)0x4C,(byte)0xC1,(byte)0x2C,(byte)0xA6,(byte)0x95,(byte)0x11,(byte)0x0A,(byte)0x7D,(byte)0x17,(byte)0x43,(byte)0xB9,(byte)0x2E,(byte)0x3F,(byte)0x70,(byte)0x1A,(byte)0xEC,(byte)0x41,(byte)0x62,(byte)0x95,(byte)0x27,(byte)0xE0,(byte)0x55,(byte)0xC4,(byte)0x49}, AuthServer.stretchLength)));
 		byte[] salt = new byte[]{(byte) 0xf3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 		System.out.println(Misc.getHexBytes("password".getBytes("UTF-8"), ""));
 		System.out.println("passwordhash " + DatatypeConverter.printHexBinary((Hash.getSHA256("password".getBytes("UTF-8")))));
@@ -24,14 +24,16 @@ public class Test {
 		System.out.println("password1stretch " + DatatypeConverter.printHexBinary(Hash.getStretchedSHA256(Hash.getSHA256("password1".getBytes("UTF-8")), salt, AuthServer.stretchLength)));
 		System.out.println("salt "+ Misc.getHexBytes(salt, ""));
 		AuthClient client = new AuthClient("localhost", 1234);
-		Request req = new CHECK("bobh", hashPW);
+		Request req = new CHECK("jane", Hash.getSHA256("password".getBytes("UTF-8")));
 		//StopWatch time = new StopWatch(true);
 		Request rep = client.exchange(req);
 		//System.out.println("exchange time: " + time.checkMS() + "ms");
 		System.out.println(rep);
 		Request req1 = new ADD("jane", "alice cooper", Hash.getSHA256("password".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
 		System.out.println(client.exchange(req1));
-		Request req2 = new CHECKADMIN("bobh", hashPW);
+		Request req2 = new REMOVE("jane");
+		req2.admin=false;
+		req2.userPW =  Hash.getSHA256("password".getBytes("UTF-8"));
 		System.out.println(client.exchange(req2));
 	}
 

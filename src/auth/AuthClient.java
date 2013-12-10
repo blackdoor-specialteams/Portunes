@@ -253,8 +253,7 @@ public class AuthClient {
 								"hash " + DatatypeConverter.printHexBinary(HSP) + "\n" +
 								"salt " + DatatypeConverter.printHexBinary(salt));
 
-			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK,
-					null));// send encrypted request
+			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK,null));// send encrypted request
 
 
 			request = reciveReply(SK);

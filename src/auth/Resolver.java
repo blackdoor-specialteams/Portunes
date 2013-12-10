@@ -156,15 +156,15 @@ public class Resolver {
 					request.setReply(false);
 				break;
 			case REMOVE:
-				if(isValidAdmin(request.username, request.adminName, request.adminPW))
+				if(request.admin && isValidAdmin(request.username, request.adminName, request.adminPW))
 					request.setReply(removeUser((REMOVE) request));
-				else request.setReply(false);
+				else request.setReply(removeUser((REMOVE) request));
 				break;
 			case CHECK:
 				request.setReply(isValidUser(request.username, request.userPW));
 				//TODO if !admin request, call recordLogin
 				if(!request.admin)
-					//recordLogin(request.origin, request.username);
+					recordLogin(request.origin, request.username);
 				break;
 			case CHANGENAME://TODO
 				if(!request.admin){
@@ -288,10 +288,9 @@ public class Resolver {
 	}
 	
 	private boolean removeUser(REMOVE request){
-		String query = "DELETE User, LogIn, History, Admin FROM User, LogIn, History, Admin " +
-				"WHERE User.userName = '" + request.username + "' AND User.userName = " +
-				"History.userName AND (User.userName = Admin.userName OR User.userName = Admin.adminName) " +
-				"AND LogIn.hid = History.hid ;";
+		String query = "DELETE FROM User "+
+				"WHERE User.userName = '" + request.username + "';";
+		//System.out.println(query);
 		try {
 			if(connection == null)
 				connect();
@@ -299,12 +298,12 @@ public class Resolver {
 			Statement stmt = connection.createStatement();
 			
 			stmt.executeUpdate(query);
-			
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
+		//return true;
 		//get the info on what to delete
 		//delete: DELETE FROM ___ WHERE user = what we want to delete
 	}
