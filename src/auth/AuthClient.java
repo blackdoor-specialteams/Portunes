@@ -252,26 +252,11 @@ public class AuthClient {
 			System.out.println("client\n" +
 								"hash " + DatatypeConverter.printHexBinary(HSP) + "\n" +
 								"salt " + DatatypeConverter.printHexBinary(salt));
-			// switch(request.getIndicator()){
-			// case AUTH:
-			// request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(),
-			// credentials));
-			// break;
-			// case NORMAL:
-			// request.setPasswordHash(getSaltyHash(request.getPasswordHash(),
-			// credentials));
-			// break;
-			// }
 
 			outputObject.writeObject(SHE.doSHE(Misc.serialize(request), SK,
 					null));// send encrypted request
 
-			// sendRequest(request);
-			// try {
-			// openSocketInput();
-			// } catch (Exception e) {
-			// return null;
-			// }
+
 			request = reciveReply(SK);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

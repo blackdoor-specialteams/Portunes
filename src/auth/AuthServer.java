@@ -275,7 +275,7 @@ public class AuthServer {
 		private void thing1() {
 			try {
 				try {
-					sendCredentials();
+					handshake();
 					Request request = recieveRequest();
 					if (request == null)
 						throw new IOException("Request not recieved.");
@@ -304,7 +304,6 @@ public class AuthServer {
 
 		private boolean recieveGreeting() {
 			boolean goodGreet = false;
-			// TODO ack username in greeting
 			try {
 				String greeting = (String) inputObject.readObject();
 				goodGreet = greeting.contains(AuthServer.greeting); // .equalsIgnoreCase(AuthServer.greeting);
@@ -348,7 +347,7 @@ public class AuthServer {
 		 * @return the session key for this session
 		 * @throws UserNotFoundException
 		 */
-		private byte[] sendCredentials() throws IOException,
+		private byte[] handshake() throws IOException,
 				UserNotFoundException {
 			seshKey = new byte[32];
 			new SecureRandom().nextBytes(seshKey);
@@ -358,8 +357,8 @@ public class AuthServer {
 			try {
 				uSalt = resolver.getUserSalt(userName);
 				uHash = resolver.getUserHash(userName);
-				System.out.println(DatatypeConverter.printHexBinary(uHash) + "\n" +
-						DatatypeConverter.printHexBinary(uSalt));//TODO
+				//System.out.println(DatatypeConverter.printHexBinary(uHash) + "\n" +
+				//		DatatypeConverter.printHexBinary(uSalt));//TODO
 			} catch (UserNotFoundException e) {
 				e.printStackTrace();
 				outputObject.writeObject(null);

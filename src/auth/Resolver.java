@@ -148,7 +148,9 @@ public class Resolver {
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
 			case ADD: 
-				request.setReply(add((ADD) request));
+				if(isAdmin(request.adminName, request.adminPW))
+					request.setReply(add((ADD) request));
+				request.setReply(false);
 				break;
 			case REMOVE:
 				if(isValidAdmin(request.username, request.adminName, request.adminPW))

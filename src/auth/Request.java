@@ -35,14 +35,17 @@ public abstract class Request implements Serializable {
 	//these getname/password methods should be implemented so that Resolver/server can 
 	//call them and get info without having to look at the details of the Request
 	public String getAuthUserName(){
-		//if(admin){
+		if(admin){
 			return adminName;
-		//}
-			//return username;
+		}
+			return username;
 	}
 	//TODO
 	public byte[] getAuthUserPW(){
-		return adminPW;
+		if(admin){
+			return adminPW;
+		}
+			return userPW;
 	}
 	//TODO
 	public String getOpUserName(){
