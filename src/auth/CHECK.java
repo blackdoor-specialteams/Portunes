@@ -26,6 +26,11 @@ public class CHECK extends Request implements Serializable {
 			return adminName;
 		return username;
 	}
+	public byte[] getAuthUserPW(){
+		if(admin)
+			return adminPW;
+		return userPW;
+	}
 	
 	public boolean getReply(){
 		return reply;

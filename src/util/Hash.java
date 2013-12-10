@@ -91,15 +91,16 @@ public class Hash {
 	
 	public static byte[] getStretchedSHA256(byte[] input, byte[] salt, int length){
 		long startTime = System.nanoTime();
-		
+		byte[] output = new byte[32];
+		System.arraycopy(input, 0, output, 0, input.length);
 		while(length-- > 0){
-			input = shuffle(input);
-			input = getSHA256(Misc.XOR(input, salt));
+			output = shuffle(output);
+			output = getSHA256(Misc.XOR(output, salt));
 		}
 		//long endTime = System.nanoTime();
 		//long duration = endTime - startTime;
 		//System.out.println(duration);
-		return input;
+		return output;
 	}
 
 	public String getSHA256String(){

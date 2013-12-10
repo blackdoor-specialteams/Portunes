@@ -358,7 +358,8 @@ public class AuthServer {
 			try {
 				uSalt = resolver.getUserSalt(userName);
 				uHash = resolver.getUserHash(userName);
-				System.out.println(DatatypeConverter.printHexBinary(uHash));//TODO
+				System.out.println(DatatypeConverter.printHexBinary(uHash) + "\n" +
+						DatatypeConverter.printHexBinary(uSalt));//TODO
 			} catch (UserNotFoundException e) {
 				e.printStackTrace();
 				outputObject.writeObject(null);

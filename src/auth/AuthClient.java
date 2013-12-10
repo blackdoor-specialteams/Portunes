@@ -18,6 +18,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import javax.xml.bind.DatatypeConverter;
+
 import auth.AuthRequest.CSHI;
 import auth.AuthRequest.Operation;
 //import auth.User.UserRight;
@@ -239,14 +241,17 @@ public class AuthClient {
 			System.arraycopy(credentials, 0, salt, 0, saltLength);
 
 			System.arraycopy(credentials, saltLength, HSPSK, 0, passLength);
-
+			
 			if (request.admin) {
 				HSP = Hash.getStretchedSHA256(request.adminPW, salt,
 						stretchLength);
 			} else
 				HSP = Hash.getStretchedSHA256(request.userPW, salt,
-						stretchLength);
+						AuthServer.stretchLength);
 			SK = Misc.XOR(HSP, HSPSK);
+			System.out.println("client\n" +
+								"hash " + DatatypeConverter.printHexBinary(HSP) + "\n" +
+								"salt " + DatatypeConverter.printHexBinary(salt));
 			// switch(request.getIndicator()){
 			// case AUTH:
 			// request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(),
@@ -271,6 +276,7 @@ public class AuthClient {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			System.err.println("Server probably disconnected unexpectedly");
 			e.printStackTrace();
 		} finally {
 			try {
