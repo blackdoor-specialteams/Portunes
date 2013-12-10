@@ -185,12 +185,10 @@ public class Resolver {
 					request.setReply(changePass((CHANGEPASS) request));
 				}
 				break;
-			case GETINFO://TODO
+			case GETINFO:
 				if(request.admin && isValidAdmin(request.username, request.adminName, request.adminPW)){
 					request.setReply(getInfo((GETINFO) request));
 				}else request.setReply(getInfo((GETINFO) request));
-				
-				
 				break;
 			case SETADMIN:
 				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
@@ -200,7 +198,7 @@ public class Resolver {
 				request.setReply(makeAdmin(request.adminName, request.username)); // true if the newAdminName has been made an administrator of userName
 				break;
 			case LIST://TODO
-				request.setReply(listUsers((GETINFO) request));
+				request.setReply(listUsers((LIST) request));
 				break;
 			case HISTORY://TODO
 				request.setReply(getHistory((HISTORY) request));
@@ -348,7 +346,7 @@ public class Resolver {
 	private Map<String, Object> getInfo(GETINFO request){
 		// SELECT * FROM table WHERE user ="username" AND etc.
 		Map<String, Object> reply = new HashMap<String, Object>();
-		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
+		String query = "SELECT h.hid, l.month,l.day,l.year,l.hours,l.minutes, INET_NTOA(l.ip) as ip FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
 				+"' AND l.index = ((h.lastLoginIndex - "+ request.time+") MOD h.length) ;"; // the history on the user with a specific username
 		int hid, month, day, year, hours, minutes;
 		InetAddress ip = null;
@@ -361,6 +359,7 @@ public class Resolver {
 				hid = rs.getInt("hid");
 				try {
 					ip = InetAddress.getByName(rs.getString("ip"));
+					System.out.println(rs.getString("ip"));
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -423,39 +422,49 @@ public class Resolver {
 		return null;
 	}
 	
-	private List<Map<String, Object>> listUsers(GETINFO request){
+	private List<Map<String, Object>> listUsers(LIST request){
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
-		String query = "SELECT h.userName, l.hid, l.ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
+		String query = "SELECT h.userName, l.hid, INET_NTOA(l.ip) as ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
 				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
-				+ " WHERE adminName = '"+ request.username +"' ;"; // admin = the user of the request
+				+ " WHERE adminName = '"+ request.adminName +"' ;"; // admin = the user of the request
 		String userName = "";
-		int hid, ip, month, day, year, hours, minutes, i;
+		int hid, month, day, year, hours, minutes, i;
+		InetAddress ip = null;
 		i=0;
 		try {
 			if(connection == null)
 				connect();
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
+			Map<String, Object> map;
 			while(rs.next()){
+				map = new HashMap<String, Object>();
 				userName = rs.getString("userName");
 				hid = rs.getInt("hid");
-				ip = rs.getInt("ip");
+				try {
+					ip = InetAddress.getByName(rs.getString("ip"));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				userName = rs.getString("userName");
 				month = rs.getInt("month");
 				day = rs.getInt("day");
 				year = rs.getInt("year");
 				hours = rs.getInt("hours");
 				minutes = rs.getInt("minutes");
-				reply.get(i).put("USERNAME", userName);
-				reply.get(i).put("HID", hid);
-				reply.get(i).put("IP", ip);
-				reply.get(i).put("MONTH", month);
-				reply.get(i).put("DAY", day);
-				reply.get(i).put("YEAR", year);
-				reply.get(i).put("HOURS", hours);
-				reply.get(i).put("MINUTES",minutes);
-				i++;
+				map.put("userName", userName);
+				map.put("hid", hid);
+				map.put("ip", ip);
+				map.put("month", month);
+				map.put("day", day);
+				map.put("year", year);
+				map.put("hours", hours);
+				map.put("minutes",minutes);
+				reply.add(map);
+				//i++;
 			}
 			return reply;
 			

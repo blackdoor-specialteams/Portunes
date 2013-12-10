@@ -34,10 +34,9 @@ public class Test {
 		//System.out.println(rep);
 		//Request req1 = new ADD("wasd", "alice cooper", Hash.getSHA256("wasd".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
 		//System.out.println(client.exchange(req1));
-		Request req2 = new CHANGENAME("jane", "b00000");
-		req2.admin=true;
-		req2.adminName = "bobh";
-		req2.adminPW =  Hash.getSHA256("password1".getBytes("UTF-8"));
+		Request req2 = new LIST("bobh", hashPW);
+		//req2.admin=false;
+		//req2.userPW =  Hash.getSHA256("password1".getBytes("UTF-8"));
 		System.out.println(client.exchange(req2));
 	}
 
