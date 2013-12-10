@@ -13,10 +13,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 //import com.mysql.jdbc.Statement;
+
 
 
 import util.Hash;
@@ -32,7 +34,6 @@ public class Resolver {
 	private static final String serverAddress = "vodkapi.dyndns.info";
 	private static final int PORT = 3306;
 	private static final String DATABASE = "Portunes";
-	private static String query = "The current query is dicks";
 	private static final String USERNAME = "nate";
 	private static final String PASSWORD = "pass";
 	/**
@@ -149,10 +150,24 @@ public class Resolver {
 					recordLogin(request.origin, request.username);
 				break;
 			case CHANGENAME://TODO
-				request.setReply(changeName((CHANGENAME) request));
+				if(!request.admin){
+					if(isValidUser(request.username, request.userPW)){
+						request.setReply(changeName((CHANGENAME) request));
+					}
+				}
+				else if	(isValidAdmin(request.username, request.adminName, request.adminPW)){
+					request.setReply(changeName((CHANGENAME) request));
+				}
 				break;
 			case CHANGEPASSWORD://TODO
-				request.setReply(changePass((CHANGEPASS) request));
+				if(!request.admin){
+					if(isValidUser(request.username, request.userPW)){
+						request.setReply(changePass((CHANGENAME) request));
+					}
+				}
+				else if	(isValidAdmin(request.username, request.adminName, request.adminPW)){
+					request.setReply(changePass((CHANGENAME) request));
+				}
 				break;
 			case GETINFO://TODO
 				request.setReply(getInfo((GETINFO) request));
@@ -178,8 +193,7 @@ public class Resolver {
 				else request.setReply(false);
 				break;
 		}
-		//ResultSet rs = stmt.executeQuery(query);
-		//close();
+		
 		return request;
 	}
 	
@@ -269,26 +283,74 @@ public class Resolver {
 	
 	private boolean changeName(CHANGENAME request){
 		//get the name we have to change
-		//UPDATE tablename
-		//SET name = "newname"
-		//WHERE name = "oldname" AND password ="password" AND so on...
+		//UPDATE tablename SET name = "newname" WHERE name = "oldname" AND password ="password" AND so on...
+		String query = "UPDATE User SET userName = '" + request.name + "' WHERE userName = '" +request.username+ "';";
+		try {
+			if (connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			stmt.executeUpdate(query);
+		} catch (SQLException e){
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 	
 	private boolean changePass(CHANGEPASS request){
 		// get the password we have to change
-		// UPDATE tablename
-		// SET password = "newpassword"
-		// WHERE name = "name" AND password ="oldpassword" AND so on... 
+		// UPDATE tablename SET password = "newpassword" WHERE name = "name" AND password ="oldpassword" AND so on... 
+		String query = "UPDATE USER SET password = '" + request.userPW + "' WHERE userName = '" + request.username +"';";
+		try {
+			if (connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			stmt.executeUpdate(query);
+		} catch (SQLException e){
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 	private Map<String, Object> getInfo(GETINFO request){
 		// SELECT * FROM table WHERE user ="username" AND etc.
+		Map<String, Object> reply = new HashMap();
+		String query1 = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
+				+"' AND l.index = (h.lastLoginIndex - "+ request.time+") MOD h.length ;"; // the history on the user with a specific username
+		int hid, ip, month, day, year, hours, minutes;
+		
+		try {
+			if(connection == null)
+				connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query1);
+			if(rs.next()){
+				hid = rs.getInt("hid");
+				ip = rs.getInt("ip");
+				month = rs.getInt("month");
+				day = rs.getInt("day");
+				year = rs.getInt("year");
+				hours = rs.getInt("hours");
+				minutes = rs.getInt("minutes");
+				reply.put("HID", hid);
+				reply.put("IP", ip);
+				reply.put("MONTH", month);
+				reply.put("DAY", day);
+				reply.put("YEAR", year);
+				reply.put("HOURS", hours);
+				reply.put("MINUTES",minutes);
+			}
+			return reply;
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	private List<Map<String, Object>> getHistory(HISTORY request){
 		// get username
 		// SELECT allPreviousLogins FROM table WHERE user = "username"
+		
 		return null;
 	}
 	private List<Map<String, Object>> listUsers(GETINFO request){
@@ -307,7 +369,7 @@ public class Resolver {
 					+ time.getMonth() + ", " + time.getDate() + ", " + time.getYear() + 
 					", h.lastLoginIndex MOD h.length, '" + time.getHours() + "', '" + time.getMinutes() + "' " +
 				"FROM History h" +
-				"WHERE h.userName = '" + userName + "'";
+				"WHERE h.userName = '" + userName + "';";
 		try {
 			connect();
 			connection.setAutoCommit(false);
@@ -336,11 +398,9 @@ public class Resolver {
 				}
 		}
 		return ret;
-		//return true; // returns true for funsies
 	}
 	
 	private boolean isValidUser(String userName2Check, byte[] password){
-		//do i need to create a new connection or how does i do this
 		String queryValidUser = "SELECT * FROM User WHERE userName = '"+ userName2Check+"';";
 
 		try {
@@ -359,7 +419,6 @@ public class Resolver {
 			e.printStackTrace();
 		}
 		return false;
-		//return Arrays.equals(Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength), storedPW);
 
 	}
 	
@@ -382,13 +441,38 @@ public class Resolver {
 	}
 	
 	private boolean isValidAdmin(String userName, String adminName, byte[] adminPW){
-		if( /* userName is in db */ && isValidUser(adminName, adminPW) ){
-			if( /* adminName is set as an admin of userName in db */)
-				return true;
+		String query1 = "SELECT userName FROM User WHERE userName = '" +userName+"';";// query that gets username of a specific user
+		String query2 = "SELECT adminName FROM Admin WHERE adminName = '" +adminName+ "' AND userName = '"+ userName+"' ;";// query that gets the admin name of a specific user
+		String userName2Check = "";
+		String adminName2Check = "";
+		byte[] storedPW = null;
+		byte[] salt = null;
+		try{
+			connect();
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query1);
+			Statement stmt2 = connection.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(query2);// gets the admin name if it exists from the query
+			
+			if(rs.next())
+				userName2Check = rs.getString("userName");
+			
+			if( userName.equals(userName2Check)/* userName is in db */ && isValidUser(adminName, adminPW) ){
+				if(rs2.next())
+					adminName2Check = rs2.getString("adminName");
+				if(adminName.equals(adminName2Check) /* adminName is set as an admin of userName in db */)
+					storedPW = rs2.getBytes("password"); // get password for userName from db
+					salt = rs2.getBytes("salt");
+					return Arrays.equals(Hash.getStretchedSHA256(adminPW, salt, AuthServer.stretchLength), storedPW);
+			}
+			else
+				return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		//if adminname is and admin of a user who is an admin of userName return true
-		// potential exemplary query here
 		return false;
+			//if adminname is and admin of a user who is an admin of userName return true
+			// potential exemplary query here
 	}
 	
 	/**
