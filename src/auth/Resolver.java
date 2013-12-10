@@ -174,11 +174,11 @@ public class Resolver {
 			case CHANGEPASSWORD://TODO
 				if(!request.admin){
 					if(isValidUser(request.username, request.userPW)){
-						request.setReply(changePass((CHANGENAME) request));
+						request.setReply(changePass((CHANGEPASS) request));
 					}
 				}
 				else if	(isValidAdmin(request.username, request.adminName, request.adminPW)){
-					request.setReply(changePass((CHANGENAME) request));
+					request.setReply(changePass((CHANGEPASS) request));
 				}
 				break;
 			case GETINFO://TODO
