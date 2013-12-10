@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import javax.xml.bind.DatatypeConverter;
+
 public class Misc {
 	/**
 	 * 
@@ -25,19 +27,22 @@ public class Misc {
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
 	}
 	public static String getHexBytes(byte[] in, String space){
-		String out = "";
-		int tmp;
-		for(int i = 0; i < in.length; i++){
-			if(in[i] < 0)
-				tmp = Math.abs(in[i]) + 127;
-			else tmp = in[i];
-			if(tmp < 16)
-				out += "0";
-			out += Integer.toHexString(tmp).toUpperCase() + space;
-		}
-		if(space.equals(""))
-			return out.substring(0, out.length());
-		return out.substring(0, out.length()-1);
+		return DatatypeConverter.printHexBinary(in);
+//		String out = "";
+//		int tmp;
+//		for(int i = 0; i < in.length; i++){
+//			if(in[i] < 0){
+//
+//				tmp = Math.abs(in[i]) + 127;
+//			}
+//			else tmp = in[i];
+//			if(tmp < 16)
+//				out += "0";
+//			out += Integer.toHexString(tmp).toUpperCase() + space;
+//		}
+//		if(space.equals(""))
+//			return out.substring(0, out.length());
+//		return out.substring(0, out.length()-1);
 	}
 	/**
 	 * Serialize an object into a byte array

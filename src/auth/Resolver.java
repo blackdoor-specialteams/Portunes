@@ -163,7 +163,8 @@ public class Resolver {
 			case CHECK:
 				request.setReply(isValidUser(request.username, request.userPW));
 				//TODO if !admin request, call recordLogin
-				if(!request.admin)
+				CHECK reply = (CHECK) request;
+				if(!request.admin && reply.reply)
 					recordLogin(request.origin, request.username);
 				break;
 			case CHANGENAME://TODO
@@ -239,12 +240,13 @@ public class Resolver {
 	private boolean add(ADD request){
 		byte[] salt = new byte[AuthServer.saltLength];
 		new SecureRandom().nextBytes(salt);
+		
 		String query_create = "INSERT INTO User values('" + request.username + "','" + request.name +
 				"', 0x" + Misc.getHexBytes(Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength), "") + 
 				", 0x" + Misc.getHexBytes(salt, "") + ");";
 		String query_history = "INSERT INTO History(length, lastLoginIndex, userName) values(" +
 				"6"/*<<history length*/ + ", 0, '" + request.username + "');";
-		// sql insert statement
+		
 		try {
 			if(connection == null)
 				connect();
