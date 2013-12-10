@@ -348,7 +348,7 @@ public class Resolver {
 		// SELECT * FROM table WHERE user ="username" AND etc.
 		Map<String, Object> reply = new HashMap<String, Object>();
 		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
-				+"' AND l.index = (h.lastLoginIndex - "+ request.time+") MOD h.length ;"; // the history on the user with a specific username
+				+"' AND l.index = ((h.lastLoginIndex - "+ request.time+") MOD h.length) ;"; // the history on the user with a specific username
 		int hid, ip, month, day, year, hours, minutes;
 		
 		try {
@@ -420,7 +420,7 @@ public class Resolver {
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
-		String query = "SELECT h.userName l.hid, l.ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
+		String query = "SELECT h.userName, l.hid, l.ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
 				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
 				+ " WHERE adminName = '"+ request.username +"' ;"; // admin = the user of the request
 		String userName = "";
