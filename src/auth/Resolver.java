@@ -148,7 +148,7 @@ public class Resolver {
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
 			case ADD: 
-				if(isAdmin(request.adminName, request.adminPW))
+				if(isAdmin(request.adminName))
 					request.setReply(add((ADD) request));
 				request.setReply(false);
 				break;
@@ -200,7 +200,7 @@ public class Resolver {
 				request.setReply(getHistory((HISTORY) request));
 				break;
 			case CHECKADMIN:
-				if(isAdmin(request.username, request.userPW)){
+				if(isValidUser(request.username, request.userPW) && isAdmin(request.username)){
 					request.setReply(true);
 					recordLogin(request.origin, request.username);
 				}
@@ -440,7 +440,8 @@ public class Resolver {
 
 	}
 	
-	private boolean isAdmin(String adminName, byte[] password){
+	
+	private boolean isAdmin(String adminName){
 		String query = "SELECT * " +
 				"FROM Admin JOIN User ON adminName = userName " +
 				"WHERE adminName = '" + adminName + "' ";

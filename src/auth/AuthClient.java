@@ -242,12 +242,12 @@ public class AuthClient {
 
 			System.arraycopy(credentials, saltLength, HSPSK, 0, passLength);
 			
-			if (request.admin) {
-				HSP = Hash.getStretchedSHA256(request.adminPW, salt,
+			//if (request.admin) {
+				HSP = Hash.getStretchedSHA256(request.getAuthUserPW(), salt,
 						stretchLength);
-			} else
-				HSP = Hash.getStretchedSHA256(request.userPW, salt,
-						AuthServer.stretchLength);
+			//} else
+			//	HSP = Hash.getStretchedSHA256(request, salt,
+			//			AuthServer.stretchLength);
 			SK = Misc.XOR(HSP, HSPSK);
 			System.out.println("client\n" +
 								"hash " + DatatypeConverter.printHexBinary(HSP) + "\n" +
