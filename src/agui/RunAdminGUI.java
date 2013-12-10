@@ -3,8 +3,8 @@ package agui;
 import auth.*;
 
 public class RunAdminGUI {
-	private static final String serverAddress = "vodkapi.dyndns.info";
-	private static final int PORT = 3306;;
+	private static final String serverAddress = "localhost";
+	private static final int PORT = 1234;
 	public static AuthClient myclient;
 	public static Session mysession;
 
