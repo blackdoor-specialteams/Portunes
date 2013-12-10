@@ -31,6 +31,8 @@ public class Test {
 		System.out.println(rep);
 		Request req1 = new ADD("jane", "alice cooper", Hash.getSHA256("password".getBytes("UTF-8")), "bobh", Hash.getSHA256("password1".getBytes("UTF-8")));
 		System.out.println(client.exchange(req1));
+		Request req2 = new CHECKADMIN("bobh", hashPW);
+		System.out.println(client.exchange(req2));
 	}
 
 }

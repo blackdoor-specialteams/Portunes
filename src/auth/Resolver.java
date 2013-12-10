@@ -416,13 +416,15 @@ public class Resolver {
 	public boolean recordLogin(InetAddress origin, String userName) {
 		boolean ret = false;
 		Watch time = new Watch();
-		String incQuery = "UPDATE LogIn SET lastLoginIndex = (lastLoginIndex + 1) MOD length WHERE userName = '" + userName + "';";
-		String query = "INSERT INTO LogIn(hid, ip, month, day, year, index, hours, minutes)" +
-				" SELECT h.hid, INET_ATON('" + origin.getHostAddress() + "'), " 
+		String incQuery = "UPDATE History SET lastLoginIndex = lastLoginIndex + 1 MOD length WHERE userName = '"+userName+"';";
+		
+		String query = "INSERT INTO LogIn(hid, ip, month, day, year, `index`, hours, minutes)" +
+				" SELECT hid, INET_ATON('" + origin.getHostAddress() + "'), " 
 					+ time.getMonth() + ", " + time.getDate() + ", " + time.getYear() + 
-					", h.lastLoginIndex MOD h.length, '" + time.getHours() + "', '" + time.getMinutes() + "' " +
-				"FROM History h" +
-				"WHERE h.userName = '" + userName + "';";
+					", lastLoginIndex MOD length, " + time.getHours() + ", " + time.getMinutes() + " " +
+				"FROM History " +
+				"WHERE userName = '" + userName + "';";
+		System.out.println(query);
 		try {
 			connect();
 			connection.setAutoCommit(false);
