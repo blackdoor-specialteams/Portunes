@@ -148,9 +148,10 @@ public class Resolver {
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
 			case ADD: 
-				if(isAdmin(request.adminName))
+				if(isAdmin(request.adminName)){
 					request.setReply(add((ADD) request));
-				request.setReply(false);
+				}else
+					request.setReply(false);
 				break;
 			case REMOVE:
 				if(isValidAdmin(request.username, request.adminName, request.adminPW))
@@ -217,7 +218,9 @@ public class Resolver {
 		try {
 			connect();
 			Statement stmt = connection.createStatement();
-			stmt.executeUpdate("INSERT INTO Admin values(" + adminName + "," + userName + ");");
+			//"INSERT INTO `Portunes`.`Admin` (`adminName`, `userName`) VALUES ('"+ adminName +"', '" + userName + "');"
+
+			stmt.executeUpdate("INSERT INTO Admin (`adminName`, `userName`) values('" + adminName + "','" + userName + "');");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -227,11 +230,11 @@ public class Resolver {
 	private boolean add(ADD request){
 		byte[] salt = new byte[AuthServer.saltLength];
 		new SecureRandom().nextBytes(salt);
-		String query_create = "INSERT INTO User values(" + request.username + "," + request.name +
-				", 0x" + Misc.getHexBytes(Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength), "") + 
+		String query_create = "INSERT INTO User values('" + request.username + "','" + request.name +
+				"', 0x" + Misc.getHexBytes(Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength), "") + 
 				", 0x" + Misc.getHexBytes(salt, "") + ");";
 		String query_history = "INSERT INTO History(length, lastLoginIndex, userName) values(" +
-				"6"/*<<history length*/ + ", 0, " + request.username + ");";
+				"6"/*<<history length*/ + ", 0, '" + request.username + "');";
 		// sql insert statement
 		try {
 			if(connection == null)
@@ -241,8 +244,10 @@ public class Resolver {
 			Statement stmt_create = connection.createStatement();
 			Statement stmt_history = connection.createStatement();
 			
+			System.out.println(query_create + "\n" +query_history);
 			stmt_create.executeUpdate(query_create);
 			stmt_history.executeUpdate(query_history);
+			
 			if(!makeAdmin(request.adminName, request.username))
 				throw new SQLException();
 			connection.commit();
@@ -298,7 +303,7 @@ public class Resolver {
 	private boolean changeName(CHANGENAME request){
 		//get the name we have to change
 		//UPDATE tablename SET name = "newname" WHERE name = "oldname" AND password ="password" AND so on...
-		String query = "UPDATE User SET userName = '" + request.name + "' WHERE userName = '" +request.username+ "';";
+		String query = "UPDATE User SET name = '" + request.name + "' WHERE userName = '" +request.username+ "';";
 		try {
 			if (connection == null)
 				connect();
@@ -314,7 +319,7 @@ public class Resolver {
 	private boolean changePass(CHANGEPASS request){
 		// get the password we have to change
 		// UPDATE tablename SET password = "newpassword" WHERE name = "name" AND password ="oldpassword" AND so on... 
-		String query = "UPDATE USER SET password = '" + request.userPW + "' WHERE userName = '" + request.username +"';";
+		String query = "UPDATE USER SET password = 0x" + request.userPW + " WHERE userName = '" + request.username +"';";
 		try {
 			if (connection == null)
 				connect();
