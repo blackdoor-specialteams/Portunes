@@ -185,7 +185,11 @@ public class Resolver {
 				}
 				break;
 			case GETINFO://TODO
-				request.setReply(getInfo((GETINFO) request));
+				if(request.admin && isValidAdmin(request.username, request.adminName, request.adminPW)){
+					request.setReply(getInfo((GETINFO) request));
+				}else request.setReply(getInfo((GETINFO) request));
+				
+				
 				break;
 			case SETADMIN:
 				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
@@ -326,8 +330,10 @@ public class Resolver {
 	private boolean changePass(CHANGEPASS request){
 		// get the password we have to change
 		// UPDATE tablename SET password = "newpassword" WHERE name = "name" AND password ="oldpassword" AND so on... 
-		String query = "UPDATE USER SET password = 0x" + request.userPW + " WHERE userName = '" + request.username +"';";
 		try {
+			byte[] salt = new byte[AuthServer.saltLength];
+			new SecureRandom().nextBytes(salt);
+			String query = "UPDATE USER SET password = 0x" + Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength) + ", salt = 0x" + Misc.bytesToHex(salt) + " WHERE userName = '" + request.username +"';";
 			if (connection == null)
 				connect();
 			Statement stmt = connection.createStatement();
@@ -340,7 +346,7 @@ public class Resolver {
 	}
 	private Map<String, Object> getInfo(GETINFO request){
 		// SELECT * FROM table WHERE user ="username" AND etc.
-		Map<String, Object> reply = new HashMap();
+		Map<String, Object> reply = new HashMap<String, Object>();
 		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
 				+"' AND l.index = (h.lastLoginIndex - "+ request.time+") MOD h.length ;"; // the history on the user with a specific username
 		int hid, ip, month, day, year, hours, minutes;
@@ -376,7 +382,7 @@ public class Resolver {
 	private List<Map<String, Object>> getHistory(HISTORY request){
 		// while rs.next(){getInfo(request + 1 time)
 		// SELECT allPreviousLogins FROM table WHERE user = "username"
-		List<Map<String, Object>> reply = new ArrayList();
+		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
 		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username+"';"; // the history on the user with a specific username
 		int hid, ip, month, day, year, hours, minutes, i;
 		i=0;
@@ -413,7 +419,7 @@ public class Resolver {
 	private List<Map<String, Object>> listUsers(GETINFO request){
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
-		List<Map<String, Object>> reply = new ArrayList();
+		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
 		String query = "SELECT h.userName l.hid, l.ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
 				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
 				+ " WHERE adminName = '"+ request.username +"' ;"; // admin = the user of the request
