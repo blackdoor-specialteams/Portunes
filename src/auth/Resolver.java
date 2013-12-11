@@ -197,11 +197,14 @@ public class Resolver {
 				// SQL INSERT newAdminName and yeah
 				request.setReply(makeAdmin(request.adminName, request.username)); // true if the newAdminName has been made an administrator of userName
 				break;
-			case LIST://TODO
+			case LIST:
 				request.setReply(listUsers((LIST) request));
 				break;
 			case HISTORY://TODO
-				request.setReply(getHistory((HISTORY) request));
+				if(request.admin && isValidAdmin(request.username, request.adminName, request.adminPW))
+					request.setReply(getHistory((HISTORY) request));
+				else
+					request.setReply(getHistory((HISTORY) request));
 				break;
 			case CHECKADMIN:
 				if(isValidUser(request.username, request.userPW) && isAdmin(request.username)){
@@ -397,6 +400,7 @@ public class Resolver {
 				connect();
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
+			//TODO fix all this
 			while(rs.next()){
 				hid = rs.getInt("hid");
 				ip = rs.getInt("ip");
