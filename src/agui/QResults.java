@@ -6,6 +6,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -223,6 +224,28 @@ public class QResults extends Shell{
 		// e.printStackTrace();
 		// }
 
+	}
+	
+	private void buildTablewithRequest(LIST r){
+		List<Map<String, Object>> resultlist = null;
+		
+		resultlist = r.reply;
+		int count = resultlist.size();
+		
+		List<TableColumn> columnlist = new ArrayList<TableColumn>();
+
+		int i = 0;
+		for ( String key : resultlist.get(1).keySet() ) {
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setText(key);
+			column.setWidth(150);
+			column.setMoveable(true);
+			column.setResizable(true);
+			columnlist.add(column);
+		}
+		
+	//	for(String)
+		
 	}
 	@Override
 	protected void checkSubclass() {
