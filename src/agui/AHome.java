@@ -223,8 +223,8 @@ public class AHome {
 						querytodo = true;
 						runquery = "SELECT * FROM User WHERE userName = \"" + _USuname_tbox.getText() + "\";" ; 
 								//" OR name =" + _USuname_tbox.getText() + ";";
-						QResults results = new QResults(display,runquery,portclient,session);
-						results.open();	
+					//	QResults results = new QResults(display,runquery,portclient,session);
+					//	results.open();	
 				}
 		}
 	public class MenuListener extends SelectionAdapter {
