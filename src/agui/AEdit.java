@@ -82,7 +82,7 @@ public class AEdit extends Shell {
 		cancel_button.addSelectionListener(new cancellistener());
 
 		Label edituser_label = new Label(composite, SWT.NONE);
-		edituser_label.setBounds(26, 25, 330, 13);
+		edituser_label.setBounds(26, 25, 330, 16);
 		edituser_label.setText("Now Editing Information for the user: "
 				+ user.getUname());
 		createContents();
