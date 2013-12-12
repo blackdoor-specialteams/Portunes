@@ -27,13 +27,11 @@ public class AHome {
 
 	protected Shell shlPortunesAdministrator;
 	private Text _USuname_tbox;
-	private Text _USname_tbox;
 	private Text ua_uname_text;
 	private Text ua_name_text;
 	private Text ua_pass_text;
 	private Text ua_cpass_text;
 	private AuthClient portclient;
-	public String runquery;
 
 	private Button _US_radio;
 	private Button _DB_radio;
@@ -44,8 +42,10 @@ public class AHome {
 	private Group _UserSrch_Grp;
 	private Group _DBSrch_Grp;
 	private Display display;
-	public boolean querytodo = false;
-	public boolean stillworking = true;
+
+	private Button gethist_radio;
+	private Button getinfo_radio;
+	private Button list_radio;
 
 	private Session session;
 
@@ -77,11 +77,11 @@ public class AHome {
 	 */
 	protected void createContents() {
 		shlPortunesAdministrator = new Shell(SWT.CLOSE | SWT.TITLE);
-		shlPortunesAdministrator.setSize(388, 411);
+		shlPortunesAdministrator.setSize(398, 420);
 		shlPortunesAdministrator.setText("Portunes | Administrator Home");
 
 		TabFolder _home_tabs = new TabFolder(shlPortunesAdministrator, SWT.NONE);
-		_home_tabs.setBounds(0, 10, 382, 357);
+		_home_tabs.setBounds(5, 10, 382, 357);
 
 		TabItem _Seach_tab = new TabItem(_home_tabs, SWT.NONE);
 		_Seach_tab.setText("Search");
@@ -101,15 +101,17 @@ public class AHome {
 		_USuname_Label.setBounds(20, 41, 55, 15);
 		_USuname_Label.setText("Username: ");
 
-		Label _USname_Label = new Label(_UserSrch_Grp, SWT.NONE);
-		_USname_Label.setBounds(20, 65, 38, 15);
-		_USname_Label.setText("Name: ");
-
 		_USuname_tbox = new Text(_UserSrch_Grp, SWT.BORDER);
 		_USuname_tbox.setBounds(81, 38, 248, 21);
 
-		_USname_tbox = new Text(_UserSrch_Grp, SWT.BORDER);
-		_USname_tbox.setBounds(60, 65, 269, 21);
+		gethist_radio = new Button(_UserSrch_Grp, SWT.RADIO);
+		gethist_radio.setBounds(10, 70, 83, 16);
+		gethist_radio.setText("Get History.");
+		gethist_radio.setSelection(true);
+
+		getinfo_radio = new Button(_UserSrch_Grp, SWT.RADIO);
+		getinfo_radio.setBounds(116, 70, 97, 16);
+		getinfo_radio.setText("Get Information");
 
 		_DBSrch_Grp = new Group(_Search_comp, SWT.NONE);
 		_DBSrch_Grp.setBounds(10, 155, 355, 62);
@@ -133,6 +135,10 @@ public class AHome {
 		showResults_button = new Button(_Search_comp, SWT.NONE);
 		showResults_button.setBounds(235, 282, 130, 39);
 		showResults_button.setText("Show Results");
+
+		list_radio = new Button(_Search_comp, SWT.RADIO);
+		list_radio.setBounds(10, 244, 152, 16);
+		list_radio.setText("Users Administrated by me.");
 		showResults_button.addSelectionListener(new ResultButton());
 
 		TabItem _Add_tab = new TabItem(_home_tabs, SWT.NONE);
@@ -206,34 +212,63 @@ public class AHome {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (_US_radio.getSelection()) {
+				getinfo_radio.setEnabled(true);
+				gethist_radio.setEnabled(true);
 				_USuname_tbox.setEnabled(true);
-				_USname_tbox.setEnabled(true);
 				_DBquery_button.setEnabled(false);
 			} else if (_DB_radio.getSelection()) {
 				_USuname_tbox.setEnabled(false);
-				_USname_tbox.setEnabled(false);
 				_DBquery_button.setEnabled(true);
-			} 
+				getinfo_radio.setEnabled(false);
+				gethist_radio.setEnabled(false);
+			} else if (list_radio.getSelection()) {
+				_USuname_tbox.setEnabled(false);
+				_DBquery_button.setEnabled(false);
+				getinfo_radio.setEnabled(false);
+				gethist_radio.setEnabled(false);
+			}
 		}
 	}
-		
+
 	public class ResultButton extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-						querytodo = true;
-						runquery = "SELECT * FROM User WHERE userName = \"" + _USuname_tbox.getText() + "\";" ; 
-								//" OR name =" + _USuname_tbox.getText() + ";";
-					//	QResults results = new QResults(display,runquery,portclient,session);
-					//	results.open();	
-				}
+			QResults results = null;
+			String tempname = _USuname_tbox.getText();
+			if(_US_radio.getSelection()){
+			if (gethist_radio.getSelection()
+					&& Sanitizer.isCleanInput(tempname)) {
+				results = new QResults(display, "history", tempname,
+						portclient, session);
+				results.open();
+			} else if (getinfo_radio.getSelection()
+					&& Sanitizer.isCleanInput(tempname)) {
+				results = new QResults(display, "getinfo", tempname,
+						portclient, session);
+				results.open();
+			}  else {
+				MessageBox messageBox = new MessageBox(
+						shlPortunesAdministrator, SWT.ICON_ERROR);
+				messageBox.setMessage("Invalid Input(s).");
+				messageBox.open();
+			}
+
 		}
+			else if (list_radio.getSelection()) {
+				results = new QResults(display, "list", tempname, portclient,
+						session);
+				results.open();
+			}
+	}
+	}
+
 	public class MenuListener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-						display.dispose();
-					
-				}
+			display.dispose();
+
 		}
+	}
 
 	public class UserAddListener extends SelectionAdapter {
 		@Override
@@ -250,12 +285,10 @@ public class AHome {
 							&& Sanitizer.isCleanInput(pass)) {
 						ADD newuser = null;
 						try {
-							newuser = new ADD(username, name,Hash.getSHA256(pass.getBytes("UTF-8")),session.getName(),session.getPassHash());
-							System.out.println(Misc.bytesToHex(newuser.adminPW));
-							System.out.println(Misc.bytesToHex(Hash.getSHA256("password1".getBytes("UTF-8"))));
-						//	byte[] ditto = Hash.getSHA256("password1".getBytes("UTF-8"));
-							//newuser.adminPW = ditto;
-							
+							newuser = new ADD(username, name,
+									Hash.getSHA256(pass.getBytes("UTF-8")),
+									session.getName(), session.getPassHash());
+
 						} catch (UnsupportedEncodingException e2) {
 							System.out.println("nope");
 							e2.printStackTrace();
