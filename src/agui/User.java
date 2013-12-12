@@ -8,6 +8,7 @@ import auth.Resolver.UserNotFoundException;
 
 public class User {
 	private String username;
+	private String name;
 	private AuthClient portclient;
 	private Session session;
 
@@ -16,11 +17,15 @@ public class User {
 		session = b;
 	}
 
-	public void setUName(String a) {
+	public void setUNameAndName(String a,String b) {
 		username = a;
+		name = b;
 	}
 	public String getUname(){
 		return username;
+	}
+	public String getName(){
+		return name;
 	}
 
 	public boolean Changename(String newname) {

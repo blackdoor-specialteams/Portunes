@@ -70,7 +70,7 @@ public class ULogin {
 		lblPassword.setText("Password:");
 
 		username_text = new Text(grpEnterAdminInformation, SWT.BORDER);
-		username_text.setBounds(89, 24, 224, 21);
+		username_text.setBounds(47, 24, 266, 21);
 
 		password_text = new Text(grpEnterAdminInformation, SWT.BORDER | SWT.PASSWORD);
 		password_text.setBounds(72, 58, 241, 22);

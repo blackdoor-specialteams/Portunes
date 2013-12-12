@@ -111,8 +111,8 @@ public class AHome {
 		gethist_radio.setSelection(true);
 
 		getinfo_radio = new Button(_UserSrch_Grp, SWT.RADIO);
-		getinfo_radio.setBounds(116, 70, 97, 16);
-		getinfo_radio.setText("Get Information");
+		getinfo_radio.setBounds(116, 70, 163, 16);
+		getinfo_radio.setText("Get Information.");
 
 		_DBSrch_Grp = new Group(_Search_comp, SWT.NONE);
 		_DBSrch_Grp.setBounds(10, 155, 355, 62);
@@ -139,7 +139,7 @@ public class AHome {
 		showResults_button.setText("Show Results");
 
 		list_radio = new Button(_Search_comp, SWT.RADIO);
-		list_radio.setBounds(10, 244, 152, 16);
+		list_radio.setBounds(10, 244, 240, 16);
 		list_radio.setText("Users Administrated by me.");
 		showResults_button.addSelectionListener(new ResultButton());
 
@@ -166,7 +166,7 @@ public class AHome {
 		_NWpw_lbl.setText("Password:");
 
 		Label _NWcpw_lbl = new Label(_NW_grp, SWT.NONE);
-		_NWcpw_lbl.setBounds(39, 115, 90, 15);
+		_NWcpw_lbl.setBounds(39, 115, 100, 15);
 		_NWcpw_lbl.setText("Confirm Password:");
 
 		ua_uname_text = new Text(_NW_grp, SWT.BORDER);
@@ -179,11 +179,7 @@ public class AHome {
 		ua_pass_text.setBounds(97, 87, 210, 21);
 
 		ua_cpass_text = new Text(_NW_grp, SWT.BORDER);
-		ua_cpass_text.setBounds(132, 112, 175, 21);
-
-		Label _Err_label = new Label(composite_1, SWT.NONE);
-		_Err_label.setBounds(25, 21, 244, 15);
-		_Err_label.setText("Error Label right here ");
+		ua_cpass_text.setBounds(145, 112, 162, 21);
 
 		add_button = new Button(composite_1, SWT.NONE);
 		add_button.setBounds(247, 261, 117, 52);

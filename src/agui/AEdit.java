@@ -34,13 +34,12 @@ public class AEdit extends Shell {
 	 * 
 	 * @param display
 	 */
-	public AEdit(Display d, String u, AuthClient a, Session s) {
+	public AEdit(Display d, User u, AuthClient a, Session s) {
 		super(d, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
 		new Sanitizer();
 		portclient = a;
 		session = s;
-		user = new User(portclient, session);
-		user.setUName(u);
+		user = u;
 		display = d;
 
 		// //////
@@ -56,6 +55,7 @@ public class AEdit extends Shell {
 		name_tbox = new Text(composite, SWT.BORDER);
 		name_tbox.setBounds(124, 60, 232, 19);
 		name_tbox.setEnabled(false);
+		name_tbox.setText(user.getName());
 
 		pass_chkbx = new Button(composite, SWT.CHECK);
 		pass_chkbx.setText("Change Password:");
