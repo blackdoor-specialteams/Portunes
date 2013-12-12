@@ -278,6 +278,7 @@ public class Resolver {
 			if(!makeAdmin(request.adminName, request.username))
 				throw new SQLException();
 			connection.commit();
+			recordLogin(request.origin, request.username);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			if(connection != null){
@@ -453,7 +454,7 @@ public class Resolver {
 		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
 		String query = "SELECT h.userName, l.hid, INET_NTOA(l.ip) as ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
 				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
-				+ " WHERE adminName = '"+ request.adminName +"' ;"; // admin = the user of the request
+				+ " WHERE adminName = '"+ request.adminName +"' AND l.index = (h.lastLoginIndex MOD h.length);"; // admin = the user of the request
 		String userName = "";
 		int hid, month, day, year, hours, minutes, i;
 		InetAddress ip = null;
