@@ -235,6 +235,7 @@ public class AHome {
 		public void widgetSelected(SelectionEvent e) {
 			QResults results = null;
 			String tempname = _USuname_tbox.getText();
+			if(_US_radio.getSelection()){
 			if (gethist_radio.getSelection()
 					&& Sanitizer.isCleanInput(tempname)) {
 				results = new QResults(display, "history", tempname,
@@ -245,12 +246,7 @@ public class AHome {
 				results = new QResults(display, "getinfo", tempname,
 						portclient, session);
 				results.open();
-			} else if (list_radio.getSelection()
-					&& Sanitizer.isCleanInput(tempname)) {
-				results = new QResults(display, "list", tempname, portclient,
-						session);
-				results.open();
-			} else {
+			}  else {
 				MessageBox messageBox = new MessageBox(
 						shlPortunesAdministrator, SWT.ICON_ERROR);
 				messageBox.setMessage("Invalid Input(s).");
@@ -258,6 +254,12 @@ public class AHome {
 			}
 
 		}
+			else if (list_radio.getSelection()) {
+				results = new QResults(display, "list", tempname, portclient,
+						session);
+				results.open();
+			}
+	}
 	}
 
 	public class MenuListener extends SelectionAdapter {
