@@ -7,7 +7,7 @@ public class SETADMIN extends Request implements Serializable {
 
 	public String newAdminName;
 	boolean reply;//true if newAdminName has been made an administrator of userName
-	public byte[] newAdminPassword;//not acutally needed?
+	public byte[] newAdminPassword;//not actually needed?
 	public SETADMIN(String userName, String newAdminName, byte[] newAdminPassword, String adminName, byte[] adminPassword) {
 		super(Operation.SETADMIN);
 		username = userName;

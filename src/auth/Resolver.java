@@ -191,16 +191,18 @@ public class Resolver {
 				}else request.setReply(getInfo((GETINFO) request));
 				break;
 			case SETADMIN:
-				if(!isValidAdmin(request.username, request.adminName, request.adminPW))
+				SETADMIN set = (SETADMIN) request;
+				if(!isValidAdmin(request.username, request.adminName, request.adminPW) || 
+						!isValidUser(set.newAdminName, set.newAdminPassword))
 					break;
 				// get the newAdminName
 				// SQL INSERT newAdminName and yeah
-				request.setReply(makeAdmin(request.adminName, request.username)); // true if the newAdminName has been made an administrator of userName
+				request.setReply(makeAdmin(set.newAdminName, request.username)); // true if the newAdminName has been made an administrator of userName
 				break;
 			case LIST:
 				request.setReply(listUsers((LIST) request));
 				break;
-			case HISTORY://TODO
+			case HISTORY:
 				if(request.admin && isValidAdmin(request.username, request.adminName, request.adminPW))
 					request.setReply(getHistory((HISTORY) request));
 				else
@@ -401,7 +403,6 @@ public class Resolver {
 				connect();
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
-			//TODO fix all this
 			while(rs.next()){
 				replyM = new HashMap<String, Object>();
 				hid = rs.getInt("hid");
@@ -492,7 +493,7 @@ public class Resolver {
 		boolean ret = false;
 		Watch time = new Watch();
 		String incQuery = "UPDATE History SET lastLoginIndex = lastLoginIndex + 1 MOD length WHERE userName = '"+userName+"';";
-		
+		String delQuery = "DELETE LogIn FROM LogIn JOIN History ON(LogIn.hid = History.hid) WHERE LogIn.index = ((History.lastLoginIndex + 1) MOD length) AND History.userName = '" + userName + "';";
 		String query = "INSERT INTO LogIn(hid, ip, month, day, year, `index`, hours, minutes)" +
 				" SELECT hid, INET_ATON('" + origin.getHostAddress() + "'), " 
 					+ time.getMonth() + ", " + time.getDate() + ", " + time.getYear() + 
@@ -502,8 +503,9 @@ public class Resolver {
 		System.out.println(query);
 		try {
 			connect();
-			connection.setAutoCommit(false);
 			Statement stmt = connection.createStatement();
+			stmt.executeUpdate(delQuery);
+			connection.setAutoCommit(false);
 			stmt.executeUpdate(incQuery);
 			stmt.executeUpdate(query);
 			connection.commit();
