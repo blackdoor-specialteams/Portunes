@@ -10,6 +10,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Label;
 
+import util.Sanitizer;
 import auth.AuthClient;
 
 public class AEdit extends Shell {

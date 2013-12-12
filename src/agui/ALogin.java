@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 
+import util.Sanitizer;
+
 public class ALogin {
 
 	protected Shell Alogin;

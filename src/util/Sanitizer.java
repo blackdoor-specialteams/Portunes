@@ -1,4 +1,4 @@
-package agui;
+package util;
 
 public class Sanitizer {
 	
