@@ -1,9 +1,5 @@
 package agui;
 
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +7,6 @@ import java.util.Map;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Decorations;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -20,37 +15,29 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 
-import util.Misc;
 import auth.*;
 
-public class QResults extends Shell{
+
+public class QResults extends Shell {
 
 	private AuthClient portclient;
-	private static java.sql.Connection connect;
-	private static java.sql.Statement statement;
-	private static ResultSet resultSet;
-
-	private static final String serverAddress = "vodkapi.dyndns.info";
-	private static final int PORT = 3306;
-	private static final String DATABASE = "Portunes";
-	private static String query = "Select * from User";
-	private static final String USERNAME = "nate";
-	private static final String PASSWORD = "pass";
-	private Table table;
 	private Session session;
 
+	private Table table;
+	private String query;
+	private String target;
 	private Button done_button;
 	private Button edit_button;
 	private Display display;
 
-
-	public QResults(Display d,String q,AuthClient a, Session b) {
-		super(d,SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
+	public QResults(Display d, String q, String t, AuthClient a, Session b) {
+		super(d, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
 		display = d;
 		query = q;
+		target = t;
 		portclient = a;
 		session = b;
-		
+
 		createContents();
 	}
 
@@ -83,37 +70,9 @@ public class QResults extends Shell{
 		table.setBounds(10, 10, 752, 328);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		handleQuery();
-
-		
-
-		// {
-		// TableColumn tblclmnNos = new TableColumn(table, SWT.NONE);
-		// tblclmnNos.setWidth(100);
-		// tblclmnNos.setText("Nos");
-		// }
-		// {
-		// TableColumn tblclmnEno = new TableColumn(table, SWT.NONE);
-		// tblclmnEno.setWidth(100);
-		// tblclmnEno.setText("Admin Type");
-		// }
-		// {
-		// TableColumn tblclmnEname = new TableColumn(table, SWT.NONE);
-		// tblclmnEname.setWidth(100);
-		// tblclmnEname.setText("Admin Name");
-		// }
-		// // {
-		// TableColumn tblclmnAge = new TableColumn(table, SWT.NONE);
-		// tblclmnAge.setWidth(100);
-		// tblclmnAge.setText("Login Name");
-		// }
-		// {
-		// TableColumn tblclmnPosition = new TableColumn(table, SWT.NONE);
-		// tblclmnPosition.setWidth(100);
-		// tblclmnPosition.setText("Login Password");
-		// }
 
 	}
 
@@ -128,8 +87,7 @@ public class QResults extends Shell{
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == done_button) {
-				while (!display.readAndDispatch()) 
-					display.sleep();
+				// TODO add the done button functionality
 			} else if (e.getSource() == edit_button) {
 				AEdit editchild = new AEdit(display);
 				editchild.open();
@@ -139,103 +97,56 @@ public class QResults extends Shell{
 
 	private void handleQuery() {
 		table.setItemCount(0);
-		
 		try {
-		//	portclient.e
-						connect = DriverManager.getConnection("jdbc:mysql://"
-					+ serverAddress + ":" + PORT + "/" + DATABASE, USERNAME,
-					PASSWORD);
-			System.out.println("Connecting succesfully");
-			statement = connect.createStatement();
-			resultSet = statement.executeQuery(query);
+			switch (query) {
+			case "history":
+				HISTORY req = new HISTORY(target);
+				req.adminName = session.getName();
+				req.adminPW = session.getPassHash();
+				req = (HISTORY) portclient.exchange(req);
+				buildtable_HISTORY(req);
+				break;
+			case "getinfo":
+				GETINFO req1 = new GETINFO(6, target);
+				req1.adminName = session.getName();
+				req1.adminPW = session.getPassHash();
+				req1 = (GETINFO) portclient.exchange(req1);
+				buildtable_GETINFO(req1);
+				break;
+			case "list":
+				LIST req2 = new LIST(session.getName(), session.getPassHash());
+				req2 = (LIST) portclient.exchange(req2);
+				buildtable_LIST(req2);
+				break;
+			}
 
-			buildTable(resultSet);
+		} catch (Exception e) {
 
-//			while (resultSet.next()) {
-//				TableItem item = new TableItem(table, SWT.NONE);
-//				item.setText(new String[] { resultSet.getString(1),
-//						resultSet.getString(2), resultSet.getString(3),
-//						resultSet.getString(4) });
-//			}
-
-			connect.close();
-		} catch (SQLException e) {
-			System.out.println("Cannot connect to database server");
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("SQLState: " + e.getSQLState());
-			System.out.println("VendorError: " + e.getErrorCode());
 		}
 	}
 
-	private void buildTable(ResultSet rs) {
-		// List<TableColumn> tablecollist = new ArrayList<TableColumn>();
 
-		ResultSetMetaData metaData = null;
-		try {
-			metaData = resultSet.getMetaData();
-			int count = metaData.getColumnCount();
-
-			TableColumn[] columns = new TableColumn[count + 1];
-
-			for (int i = 0; i < count; i++) {
-				TableColumn column = new TableColumn(table, SWT.NONE);
-				column.setText(metaData.getColumnLabel(i +1));
-				column.setWidth(150);
-				column.setMoveable(true);
-				column.setResizable(true);
-				columns[i] = column;
-			}
-			
-			String[] tableitemsetter = new String[count];
-			
-			while (resultSet.next()) {
-				TableItem item = new TableItem(table, SWT.NONE);
-				for(int j = 0; j < count; j++){
-					tableitemsetter[j] = resultSet.getString(j+1);
-				}
-					
-				item.setText(tableitemsetter);
-			}
-			
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// try {
-		// metaData = resultSet.getMetaData();
-		// int count = metaData.getColumnCount(); //number of column
-		//
-		// for (int i = 1; i <= count; i++)
-		// {
-		// tablecollist.add(new TableColumn());
-		// tablecollist.get(i).setWidth(100);
-		// tablecollist.get(i).setText(metaData.getColumnLabel(i));
-		// columnName[i-1] = metaData.getColumnLabel(i);
-		// }
-		//
-		// String columnName[] = new String[count];
-		//
-		// for (int i = 1; i <= count; i++)
-		// {
-		// columnName[i-1] = metaData.getColumnLabel(i);
-		// }
-		// } catch (SQLException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
+	private void buildtable_HISTORY(HISTORY r) {
+		listofmaps(r.reply);
 	}
-	
-	private void buildTablewithRequest(LIST r){
-		List<Map<String, Object>> resultlist = null;
-		
-		resultlist = r.reply;
-		int count = resultlist.size();
-		
+
+	private void buildtable_LIST(LIST r) {
+
+		listofmaps(r.reply);
+	}
+
+	private void buildtable_GETINFO(GETINFO r) {
+
+		tablewithmap(r.reply);
+	}
+
+	private void listofmaps(List r) {
+		List<Map<String, Object>> resultlist = r;
+
 		List<TableColumn> columnlist = new ArrayList<TableColumn>();
 
-		int i = 0;
-		for ( String key : resultlist.get(1).keySet() ) {
+		// sets up the columns and their names
+		for (String key : resultlist.get(1).keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
 			column.setWidth(150);
@@ -243,10 +154,48 @@ public class QResults extends Shell{
 			column.setResizable(true);
 			columnlist.add(column);
 		}
-		
-	//	for(String)
-		
+		int count = columnlist.size();
+		String[] tableitemsetter = new String[count];
+		int i = 0;
+		for (Map<String, Object> tuplemap : resultlist) {
+			TableItem item = new TableItem(table, SWT.NONE);
+			for (TableColumn col : columnlist) {
+				tableitemsetter[i] = tuplemap.get(col.getText()).toString();
+				i++;
+			}
+			item.setText(tableitemsetter);
+			i = 0;
+		}
 	}
+
+	private void tablewithmap(Map r) {
+		Map<String, Object> resultlist = r;
+
+		List<TableColumn> columnlist = new ArrayList<TableColumn>();
+
+		// sets up the columns and their names
+		for (String key : resultlist.keySet()) {
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setText(key);
+			column.setWidth(150);
+			column.setMoveable(true);
+			column.setResizable(true);
+			columnlist.add(column);
+		}
+		int count = columnlist.size();
+		String[] tableitemsetter = new String[count];
+		int i = 0;
+		TableItem item = new TableItem(table, SWT.NONE);
+		for (TableColumn col : columnlist) {
+			tableitemsetter[i] = resultlist.get(col.getText()).toString();
+			i++;
+		}
+		item.setText(tableitemsetter);
+		i = 0;
+	}
+
+	// for(String)
+
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
