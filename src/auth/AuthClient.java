@@ -269,6 +269,7 @@ public class AuthClient {
 				e.printStackTrace();
 			}
 		}
+		System.out.println(request);
 		return request;
 	}
 	
