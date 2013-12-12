@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.*;
 
 import auth.*;
 
-
 public class QResults extends Shell {
 
 	private AuthClient portclient;
@@ -103,12 +102,15 @@ public class QResults extends Shell {
 				HISTORY req = new HISTORY(target);
 				req.adminName = session.getName();
 				req.adminPW = session.getPassHash();
+				req.admin = true;
 				req = (HISTORY) portclient.exchange(req);
 				buildtable_HISTORY(req);
 				break;
 			case "getinfo":
-				GETINFO req1 = new GETINFO(6, target);
+				System.out.println("my string is hot");
+				GETINFO req1 = new GETINFO(3, target);
 				req1.adminName = session.getName();
+				req1.admin = true;
 				req1.adminPW = session.getPassHash();
 				req1 = (GETINFO) portclient.exchange(req1);
 				buildtable_GETINFO(req1);
@@ -125,19 +127,25 @@ public class QResults extends Shell {
 		}
 	}
 
-
 	private void buildtable_HISTORY(HISTORY r) {
-		listofmaps(r.reply);
+		if (r.reply != null)
+			listofmaps(r.reply);
+		else
+			EmptyQuery();
 	}
 
 	private void buildtable_LIST(LIST r) {
-
-		listofmaps(r.reply);
+		if (r.reply != null)
+			listofmaps(r.reply);
+		else
+			EmptyQuery();
 	}
 
 	private void buildtable_GETINFO(GETINFO r) {
-
-		tablewithmap(r.reply);
+		if (r.reply != null)
+			tablewithmap(r.reply);
+		else
+			EmptyQuery();
 	}
 
 	private void listofmaps(List r) {
@@ -149,7 +157,7 @@ public class QResults extends Shell {
 		for (String key : resultlist.get(1).keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(150);
+			column.setWidth(70);
 			column.setMoveable(true);
 			column.setResizable(true);
 			columnlist.add(column);
@@ -177,7 +185,7 @@ public class QResults extends Shell {
 		for (String key : resultlist.keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(150);
+			column.setWidth(70);
 			column.setMoveable(true);
 			column.setResizable(true);
 			columnlist.add(column);
@@ -194,7 +202,10 @@ public class QResults extends Shell {
 		i = 0;
 	}
 
-	// for(String)
+	private void EmptyQuery() {
+		MessageBox messageBox = new MessageBox(this, SWT.ICON_ERROR);
+		messageBox.setMessage("Empty! Sorry!");
+	}
 
 	@Override
 	protected void checkSubclass() {
