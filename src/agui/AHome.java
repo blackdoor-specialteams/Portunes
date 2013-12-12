@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import util.Hash;
-import util.Misc;
 import auth.*;
 import auth.Resolver.UserNotFoundException;
 
@@ -46,6 +45,7 @@ public class AHome {
 	private Button gethist_radio;
 	private Button getinfo_radio;
 	private Button list_radio;
+	private String query;
 
 	private Session session;
 
@@ -120,6 +120,7 @@ public class AHome {
 		_DBquery_button.setBounds(108, 27, 126, 25);
 		_DBquery_button.setText("Show query list");
 		_DBquery_button.setEnabled(false);
+		_DBquery_button.addSelectionListener(new AdvancedQueryListner());
 
 		_US_radio = new Button(_Search_comp, SWT.RADIO);
 		_US_radio.setBounds(10, 10, 130, 16);
@@ -229,6 +230,14 @@ public class AHome {
 			}
 		}
 	}
+	public class AdvancedQueryListner extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			AadvancedQuery newwindow = new AadvancedQuery(display);
+			newwindow.open();
+			query = newwindow.query; 
+		}
+	}
 
 	public class ResultButton extends SelectionAdapter {
 		@Override
@@ -256,6 +265,11 @@ public class AHome {
 		}
 			else if (list_radio.getSelection()) {
 				results = new QResults(display, "list", tempname, portclient,
+						session);
+				results.open();
+			}
+			else if (_DB_radio.getSelection()) {
+				results = new QResults(display, "arb", query, portclient,
 						session);
 				results.open();
 			}

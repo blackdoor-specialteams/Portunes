@@ -1,9 +1,6 @@
 package agui;
 
-import java.io.UnsupportedEncodingException;
-
 import auth.*;
-import auth.Resolver.UserNotFoundException;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -16,7 +13,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 
-public class Alogin {
+public class ALogin {
 
 	protected Shell Alogin;
 	private Text username_text;
@@ -30,7 +27,7 @@ public class Alogin {
 	 * Open the window.
 	 * @param mysession 
 	 */
-	public Alogin(AuthClient tempclient, Session b) {
+	public ALogin(AuthClient tempclient, Session b) {
 		portclient = tempclient;
 		new Sanitizer();
 		session = b;

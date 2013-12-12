@@ -13,7 +13,7 @@ public class RunAdminGUI {
 		myclient = new AuthClient(serverAddress, PORT);
 		mysession = new Session();
 		
-		Alogin login = new Alogin(myclient,mysession);
+		ALogin login = new ALogin(myclient,mysession);
 		login.open();
 
 		if(mysession.isAuthorized()) {

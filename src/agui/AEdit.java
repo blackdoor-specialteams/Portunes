@@ -2,7 +2,6 @@ package agui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Button;
@@ -22,7 +21,7 @@ public class AEdit extends Shell {
 	private Button cancel_button;
 	private Text name_tbox;
 	private Text pass_tbox;
-	
+
 	private boolean removechecked = false;
 
 	private User user;
@@ -74,15 +73,17 @@ public class AEdit extends Shell {
 		accept_button = new Button(composite, SWT.NONE);
 		accept_button.setBounds(280, 165, 121, 45);
 		accept_button.setText("Accept Changes");
-		accept_button.addSelectionListener( new acceptlistener());
+		accept_button.addSelectionListener(new acceptlistener());
 
 		cancel_button = new Button(composite, SWT.NONE);
 		cancel_button.setBounds(182, 168, 92, 38);
 		cancel_button.setText("Cancel");
+		cancel_button.addSelectionListener(new cancellistener());
 
 		Label edituser_label = new Label(composite, SWT.NONE);
 		edituser_label.setBounds(26, 25, 330, 13);
-		edituser_label.setText("Now Editing Information for the user: " + user.getUname());
+		edituser_label.setText("Now Editing Information for the user: "
+				+ user.getUname());
 		createContents();
 	}
 
@@ -101,12 +102,12 @@ public class AEdit extends Shell {
 			if (name_chkbx.getSelection()) {
 				name_tbox.setEnabled(true);
 
-			} else if(!name_chkbx.getSelection()) {
+			} else if (!name_chkbx.getSelection()) {
 				name_tbox.setEnabled(false);
 			}
 			if (pass_chkbx.getSelection()) {
 				pass_tbox.setEnabled(true);
-			} else if(!pass_chkbx.getSelection()) {
+			} else if (!pass_chkbx.getSelection()) {
 				pass_tbox.setEnabled(false);
 			}
 		}
@@ -121,7 +122,7 @@ public class AEdit extends Shell {
 				pass_chkbx.setEnabled(false);
 				name_chkbx.setEnabled(false);
 				pass_tbox.setEnabled(false);
-			} else if(!remove_chkbox.getSelection()) {
+			} else if (!remove_chkbox.getSelection()) {
 				removechecked = false;
 				name_tbox.setEnabled(true);
 				pass_chkbx.setEnabled(true);
@@ -131,27 +132,41 @@ public class AEdit extends Shell {
 		}
 	}
 	
+	public class cancellistener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			throwaway();
+		}
+	}
+		
+
 	public class acceptlistener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			boolean everythingworked = true;
 			if (removechecked) {
 				everythingworked = user.Remove();
-				
-			}else{
+
+			} else {
 				String newpass = pass_tbox.getText();
 				String newname = name_tbox.getText();
-				if(pass_chkbx.getSelection() && Sanitizer.isCleanInput(newpass)){
+				if (pass_chkbx.getSelection()
+						&& Sanitizer.isCleanInput(newpass)) {
 					everythingworked = user.Changepass(newpass);
-				}	
-				if(name_chkbx.getSelection()&& Sanitizer.isCleanInput(newname)){
+				}
+				if (name_chkbx.getSelection()
+						&& Sanitizer.isCleanInput(newname)) {
 					everythingworked = user.Changename(newname);
 				}
 			}
-			if(!everythingworked){
+			if (!everythingworked) {
 				System.out.println("Did not work----- sorry");
 			}
+			throwaway();
 		}
+	}
+	private void throwaway(){
+		this.dispose();
 	}
 
 	@Override

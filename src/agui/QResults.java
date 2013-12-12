@@ -92,9 +92,11 @@ public class QResults extends Shell {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == done_button) {
-				// TODO add the done button functionality
+				throwaway();
+
 			} else if (e.getSource() == edit_button) {
-				AEdit editchild = new AEdit(display,selecteduser,portclient,session);
+				AEdit editchild = new AEdit(display, selecteduser, portclient,
+						session);
 				editchild.open();
 			}
 		}
@@ -126,13 +128,23 @@ public class QResults extends Shell {
 				req2 = (LIST) portclient.exchange(req2);
 				buildtable_LIST(req2);
 				break;
+			case "arb":
+				ArbitraryRequest req3 = new ArbitraryRequest(target,session.getName(), session.getPassHash());
+				req3 = (ArbitraryRequest) portclient.exchange(req3);
+				buildtable_ArbitraryRequest(req3);
+				break;
 			}
 
 		} catch (Exception e) {
 
 		}
 	}
-
+	private void buildtable_ArbitraryRequest(ArbitraryRequest r) {
+		if (r.reply != null)
+			listofmaps(r.reply);
+		else
+			EmptyQuery();
+	}
 	private void buildtable_HISTORY(HISTORY r) {
 		if (r.reply != null)
 			listofmaps(r.reply);
@@ -152,6 +164,10 @@ public class QResults extends Shell {
 			tablewithmap(r.reply);
 		else
 			EmptyQuery();
+	}
+
+	private void throwaway() {
+		this.dispose();
 	}
 
 	private void listofmaps(List r) {
