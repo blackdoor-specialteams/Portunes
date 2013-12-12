@@ -84,7 +84,7 @@ public class QResults extends Shell {
 			edit_button.setEnabled(true);
 			TableItem current = (TableItem) event.item;
 			selecteduser.setUNameAndName(current.getText(5),current.getText(3));
-			System.out.println(current.getText(4));
+			System.out.println(current.getText(5));
 
 		}
 	}
