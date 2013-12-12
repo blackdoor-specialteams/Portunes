@@ -28,7 +28,7 @@ public class QResults extends Shell {
 	private Button done_button;
 	private Button edit_button;
 	private Display display;
-	private String selecteduser;
+	private User selecteduser;
 
 	public QResults(Display d, String q, String t, AuthClient a, Session b) {
 		super(d, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
@@ -37,6 +37,7 @@ public class QResults extends Shell {
 		target = t;
 		portclient = a;
 		session = b;
+		selecteduser = new User(portclient,session);
 
 		createContents();
 	}
@@ -82,7 +83,7 @@ public class QResults extends Shell {
 		public void handleEvent(Event event) {
 			edit_button.setEnabled(true);
 			TableItem current = (TableItem) event.item;
-			selecteduser = current.getText(4);
+			selecteduser.setUNameAndName(current.getText(5),current.getText(3));
 			System.out.println(current.getText(4));
 
 		}
@@ -179,7 +180,7 @@ public class QResults extends Shell {
 		for (String key : resultlist.get(1).keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(67);
+			column.setWidth(80);
 			column.setMoveable(false);
 			column.setResizable(true);
 			columnlist.add(column);
@@ -207,7 +208,7 @@ public class QResults extends Shell {
 		for (String key : resultlist.keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(67);
+			column.setWidth(80);
 			column.setMoveable(false);
 			column.setResizable(true);
 			columnlist.add(column);
