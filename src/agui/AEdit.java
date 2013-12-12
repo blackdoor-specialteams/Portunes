@@ -2,77 +2,87 @@ package agui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Label;
+
+import auth.AuthClient;
 
 public class AEdit extends Shell {
-	private Text text;
-	private Text text_1;
-	private Text text_2;
 	private Display display;
-	private Button btnChange;
-	private Button btnChangeName;
-	private Button btnChangePassword;
-	private Button btnGiveAdminPermissions;
+	private Button name_chkbx;
+	private Button pass_chkbx;
+	private Button remove_chkbox;
+	private Button accept_button;
+	private Button cancel_button;
+	private Text name_tbox;
+	private Text pass_tbox;
 	
+	private boolean removechecked = false;
+
+	private User user;
+	private Session session;
+	private AuthClient portclient;
+
 	/**
 	 * Create the shell.
+	 * 
 	 * @param display
 	 */
-	public AEdit(Display d) {
+	public AEdit(Display d, String u, AuthClient a, Session s) {
 		super(d, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
+		new Sanitizer();
+		portclient = a;
+		session = s;
+		user = new User(portclient, session);
+		user.setUName(u);
 		display = d;
+
+		// //////
+
 		Composite composite = new Composite(this, SWT.NONE);
-		composite.setBounds(0, 0, 444, 216);
-		
-		btnChangeName = new Button(composite, SWT.CHECK);
-		btnChangeName.setBounds(27, 28, 111, 16);
-		btnChangeName.setText("Change Username:");
-		btnChangeName.addSelectionListener(new checklistner());
-		
-		btnChange = new Button(composite, SWT.CHECK);
-		btnChange.setText("Change Name:");
-		btnChange.setBounds(27, 60, 92, 16);
-		btnChange.addSelectionListener(new checklistner());
-		
-		btnChangePassword = new Button(composite, SWT.CHECK);
-		btnChangePassword.setText("Change Password:");
-		btnChangePassword.setBounds(27, 92, 111, 16);
-		btnChangePassword.addSelectionListener(new checklistner());
-		
-		Button btnNewButton = new Button(composite, SWT.NONE);
-		btnNewButton.setBounds(10, 168, 99, 38);
-		btnNewButton.setText("Delete User");
-		
-		Button btnNewButton_1 = new Button(composite, SWT.NONE);
-		btnNewButton_1.setBounds(313, 161, 121, 45);
-		btnNewButton_1.setText("Accept Changes");
-		
-		Button btnNewButton_2 = new Button(composite, SWT.NONE);
-		btnNewButton_2.setBounds(215, 168, 92, 38);
-		btnNewButton_2.setText("Cancel");
-		btnNewButton_2.addSelectionListener(new Choicelistener());
-		
-		text = new Text(composite, SWT.BORDER);
-		text.setBounds(146, 28, 201, 19);
-		text.setEnabled(false);
-		
-		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setBounds(125, 59, 222, 19);
-		text_1.setEnabled(false);
-		
-		
-		text_2 = new Text(composite, SWT.BORDER);
-		text_2.setBounds(140, 89, 207, 19);
-		text_2.setEnabled(false);
-		
-		btnGiveAdminPermissions = new Button(composite, SWT.CHECK);
-		btnGiveAdminPermissions.setBounds(24, 125, 215, 16);
-		btnGiveAdminPermissions.setText("Give Administrative Permissions.");
+		composite.setBounds(0, 0, 410, 216);
+
+		name_chkbx = new Button(composite, SWT.CHECK);
+		name_chkbx.setText("Change Name:");
+		name_chkbx.setBounds(26, 61, 92, 16);
+		name_chkbx.addSelectionListener(new chkboxlistener());
+
+		name_tbox = new Text(composite, SWT.BORDER);
+		name_tbox.setBounds(124, 60, 232, 19);
+		name_tbox.setEnabled(false);
+
+		pass_chkbx = new Button(composite, SWT.CHECK);
+		pass_chkbx.setText("Change Password:");
+		pass_chkbx.setBounds(26, 93, 111, 16);
+		pass_chkbx.addSelectionListener(new chkboxlistener());
+
+		pass_tbox = new Text(composite, SWT.BORDER);
+		pass_tbox.setBounds(143, 90, 213, 19);
+		pass_tbox.setEnabled(false);
+
+		remove_chkbox = new Button(composite, SWT.CHECK);
+		remove_chkbox.setBounds(26, 132, 248, 16);
+		remove_chkbox.setText("Remove user from the Database.");
+		remove_chkbox.addSelectionListener(new remove_listener());
+
+		accept_button = new Button(composite, SWT.NONE);
+		accept_button.setBounds(280, 165, 121, 45);
+		accept_button.setText("Accept Changes");
+		accept_button.addSelectionListener( new acceptlistener());
+
+		cancel_button = new Button(composite, SWT.NONE);
+		cancel_button.setBounds(182, 168, 92, 38);
+		cancel_button.setText("Cancel");
+
+		Label edituser_label = new Label(composite, SWT.NONE);
+		edituser_label.setBounds(26, 25, 330, 13);
+		edituser_label.setText("Now Editing Information for the user: " + user.getUname());
 		createContents();
 	}
 
@@ -81,39 +91,66 @@ public class AEdit extends Shell {
 	 */
 	protected void createContents() {
 		setText("Edit User Info");
-		setSize(450, 241);
+		setSize(414, 241);
 
+	}
+
+	public class chkboxlistener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (name_chkbx.getSelection()) {
+				name_tbox.setEnabled(true);
+
+			} else if(!name_chkbx.getSelection()) {
+				name_tbox.setEnabled(false);
+			}
+			if (pass_chkbx.getSelection()) {
+				pass_tbox.setEnabled(true);
+			} else if(!pass_chkbx.getSelection()) {
+				pass_tbox.setEnabled(false);
+			}
+		}
+	}
+
+	public class remove_listener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (remove_chkbox.getSelection()) {
+				removechecked = true;
+				name_tbox.setEnabled(false);
+				pass_chkbx.setEnabled(false);
+				name_chkbx.setEnabled(false);
+				pass_tbox.setEnabled(false);
+			} else if(!remove_chkbox.getSelection()) {
+				removechecked = false;
+				name_tbox.setEnabled(true);
+				pass_chkbx.setEnabled(true);
+				name_chkbx.setEnabled(true);
+				pass_tbox.setEnabled(true);
+			}
+		}
 	}
 	
-	public class Choicelistener extends SelectionAdapter {
+	public class acceptlistener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-				while (!display.readAndDispatch()) 
-					display.sleep();
-
+			boolean everythingworked = true;
+			if (removechecked) {
+				everythingworked = user.Remove();
+				
+			}else{
+				String newpass = pass_tbox.getText();
+				String newname = name_tbox.getText();
+				if(pass_chkbx.getSelection() && Sanitizer.isCleanInput(newpass)){
+					everythingworked = user.Changepass(newpass);
+				}	
+				if(name_chkbx.getSelection()&& Sanitizer.isCleanInput(newname)){
+					everythingworked = user.Changename(newname);
+				}
 			}
-		}
-	public class checklistner extends SelectionAdapter {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if(btnChangeName.getSelection()){
-				text.setEnabled(true);
+			if(!everythingworked){
+				System.out.println("Did not work----- sorry");
 			}
-		if(btnChange.getSelection()){
-			text_1.setEnabled(true);
-		}
-		if(btnChangePassword.getSelection()){
-			text_2.setEnabled(true);
-		}
-		if(!btnChangeName.getSelection()){
-			text.setEnabled(false);
-		}
-		if(!btnChange.getSelection()){
-		text_1.setEnabled(false);
-		}
-		if(!btnChangePassword.getSelection()){
-		text_2.setEnabled(false);
-	}
 		}
 	}
 

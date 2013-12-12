@@ -19,8 +19,9 @@ public class RunAdminGUI {
 		if(mysession.isAuthorized()) {
 			AHome home = new AHome(myclient,mysession);
 			home.open();
-			}
+
 		}
 	}
+}
 
 

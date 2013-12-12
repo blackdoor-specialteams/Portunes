@@ -28,6 +28,7 @@ public class QResults extends Shell {
 	private Button done_button;
 	private Button edit_button;
 	private Display display;
+	private String selecteduser;
 
 	public QResults(Display d, String q, String t, AuthClient a, Session b) {
 		super(d, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
@@ -61,6 +62,7 @@ public class QResults extends Shell {
 		edit_button = new Button(_Results_comp, SWT.NONE);
 		edit_button.setBounds(10, 344, 128, 54);
 		edit_button.setText("Edit Selected");
+		edit_button.setEnabled(false);
 		edit_button.addSelectionListener(new Choicelistener());
 
 		table = new Table(_Results_comp, SWT.BORDER | SWT.FULL_SELECTION
@@ -77,7 +79,11 @@ public class QResults extends Shell {
 
 	public class Tablelistener implements Listener {
 		@Override
-		public void handleEvent(org.eclipse.swt.widgets.Event event) {
+		public void handleEvent(Event event) {
+			edit_button.setEnabled(true);
+			TableItem current = (TableItem) event.item;
+			selecteduser = current.getText(4);
+			System.out.println(current.getText(4));
 
 		}
 	}
@@ -88,7 +94,7 @@ public class QResults extends Shell {
 			if (e.getSource() == done_button) {
 				// TODO add the done button functionality
 			} else if (e.getSource() == edit_button) {
-				AEdit editchild = new AEdit(display);
+				AEdit editchild = new AEdit(display,selecteduser,portclient,session);
 				editchild.open();
 			}
 		}
@@ -157,8 +163,8 @@ public class QResults extends Shell {
 		for (String key : resultlist.get(1).keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(70);
-			column.setMoveable(true);
+			column.setWidth(67);
+			column.setMoveable(false);
 			column.setResizable(true);
 			columnlist.add(column);
 		}
@@ -185,8 +191,8 @@ public class QResults extends Shell {
 		for (String key : resultlist.keySet()) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(key);
-			column.setWidth(70);
-			column.setMoveable(true);
+			column.setWidth(67);
+			column.setMoveable(false);
 			column.setResizable(true);
 			columnlist.add(column);
 		}
