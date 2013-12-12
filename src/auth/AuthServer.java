@@ -426,7 +426,7 @@ public class AuthServer {
 		}
 
 		private void closeSocket() throws IOException {
-			System.out.println("attempting to close conneciton from "
+			System.out.println("attempting to close connection from "
 					+ socket.getRemoteSocketAddress() + " on "
 					+ socket.getLocalPort());
 			try {
@@ -434,6 +434,7 @@ public class AuthServer {
 				inputBuffer.close();
 				outputObject.close();
 				socket.close();
+				System.out.println(socket.getRemoteSocketAddress() + ":"+socket.getLocalPort() + " closed.");
 			} catch (NullPointerException e) {
 				System.err
 						.println("Couldn't close connections. Was the connection reset?");

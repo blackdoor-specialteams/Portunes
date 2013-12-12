@@ -113,7 +113,7 @@ public class Resolver {
 	
 	public byte[] getUserHash(String userName) throws UserNotFoundException, IOException{
 		//Connection connection;
-		System.out.println("getting hash");
+		//System.out.println("getting hash");
 		try {
 			if(connection == null)
 				connect();//connection = getConnection(USERNAME, PASSWORD);
@@ -260,7 +260,7 @@ public class Resolver {
 			Statement stmt_create = connection.createStatement();
 			Statement stmt_history = connection.createStatement();
 			
-			System.out.println(query_create + "\n" +query_history);
+			//System.out.println(query_create + "\n" +query_history);
 			stmt_create.executeUpdate(query_create);
 			stmt_history.executeUpdate(query_history);
 			
@@ -364,7 +364,7 @@ public class Resolver {
 				hid = rs.getInt("hid");
 				try {
 					ip = InetAddress.getByName(rs.getString("ip"));
-					System.out.println(rs.getString("ip"));
+					//System.out.println(rs.getString("ip"));
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -500,7 +500,7 @@ public class Resolver {
 					", lastLoginIndex MOD length, " + time.getHours() + ", " + time.getMinutes() + " " +
 				"FROM History " +
 				"WHERE userName = '" + userName + "';";
-		System.out.println(query);
+		//System.out.println(query);
 		try {
 			connect();
 			Statement stmt = connection.createStatement();
@@ -544,9 +544,9 @@ public class Resolver {
 				byte[] storedPW = rs.getBytes("password"); // get password for userName from db
 				byte[] salt = rs.getBytes("salt");
 				byte[] computedPW = Hash.getStretchedSHA256(password, salt, AuthServer.stretchLength);
-				System.out.println(DatatypeConverter.printHexBinary(password) +"\nserver " + DatatypeConverter.printHexBinary(storedPW) + "\n" +
-						"compu " + DatatypeConverter.printHexBinary(computedPW) + "\n" +
-						DatatypeConverter.printHexBinary(password) + " " + DatatypeConverter.printHexBinary(salt));
+				//System.out.println(DatatypeConverter.printHexBinary(password) +"\nserver " + DatatypeConverter.printHexBinary(storedPW) + "\n" +
+				//		"compu " + DatatypeConverter.printHexBinary(computedPW) + "\n" +
+				//		DatatypeConverter.printHexBinary(password) + " " + DatatypeConverter.printHexBinary(salt));
 				return Arrays.equals(computedPW, storedPW);
 			}
 			//else
