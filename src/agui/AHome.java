@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import util.Hash;
+import util.Sanitizer;
 import auth.*;
 import auth.Resolver.UserNotFoundException;
 
