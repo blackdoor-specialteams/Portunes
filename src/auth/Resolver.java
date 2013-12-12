@@ -363,8 +363,9 @@ public class Resolver {
 	private Map<String, Object> getInfo(GETINFO request){
 		// SELECT * FROM table WHERE user ="username" AND etc.
 		Map<String, Object> reply = new HashMap<String, Object>();
-		String query = "SELECT h.hid, l.month,l.day,l.year,l.hours,l.minutes, INET_NTOA(l.ip) as ip FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username
-				+"' AND l.index = ((h.lastLoginIndex - "+ request.time+") MOD h.length) ;"; // the history on the user with a specific username
+		String query = "SELECT h.hid, u.name, l.month,l.day,l.year,l.hours,l.minutes, INET_NTOA(l.ip) as ip " +
+				"FROM History h JOIN LogIn l USING(hid) JOIN User u USING(userName)" +
+				"WHERE h.userName = '"+request.username+"' AND l.index = ((h.lastLoginIndex - "+ request.time+") MOD h.length) ;"; // the history on the user with a specific username
 		int hid, month, day, year, hours, minutes;
 		InetAddress ip = null;
 		try {
@@ -387,6 +388,7 @@ public class Resolver {
 				hours = rs.getInt("hours");
 				minutes = rs.getInt("minutes");
 				reply.put("userName", request.username);
+				reply.put("name", rs.getString("name"));
 				reply.put("hid", hid);
 				reply.put("ip", ip);
 				reply.put("month", month);
@@ -452,7 +454,7 @@ public class Resolver {
 		// ASSUME ITS ADMIN get admin name and pword
 		// SELECT allPreviousLogins FROM table WHERE adminname = "admin name" AND etc.
 		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
-		String query = "SELECT h.userName, l.hid, INET_NTOA(l.ip) as ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
+		String query = "SELECT h.userName, u.name, l.hid, INET_NTOA(l.ip) as ip, l.month, l.day, l.year, l.hours, l.minutes" // reutrn back what we need
 				+ " FROM ((History h JOIN LogIn l USING (hid)) JOIN User u USING (userName)) JOIN Admin a USING (userName) " // join all tables
 				+ " WHERE adminName = '"+ request.adminName +"' AND l.index = (h.lastLoginIndex MOD h.length);"; // admin = the user of the request
 		String userName = "";
@@ -482,6 +484,7 @@ public class Resolver {
 				hours = rs.getInt("hours");
 				minutes = rs.getInt("minutes");
 				map.put("userName", userName);
+				map.put("name", rs.getString("name"));
 				map.put("hid", hid);
 				map.put("ip", ip);
 				map.put("month", month);
