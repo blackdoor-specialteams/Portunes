@@ -40,11 +40,11 @@ import util.Watch;
  */
 public class Resolver {
 	private Connection connection = null;
-	private static final String serverAddress = "vodkapi.dyndns.info";
-	private static final int PORT = 3306;
-	private static final String DATABASE = "Portunes";
-	private static final String USERNAME = "nate";
-	private static final String PASSWORD = "pass";
+	private String serverAddress = "localhost";
+	private final int PORT = 3306;
+	private final String DATABASE = "Portunes";
+	private final String USERNAME = "portunes";
+	private final String PASSWORD = "drowssap";
 	/**
 	 * notes:
 	 * working with IPv4 addresses in mySQL:
@@ -68,6 +68,15 @@ public class Resolver {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	public Resolver(String dbServer) {
+		serverAddress = dbServer;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private Connection getConnection(String sqlUserName, String sqlUserPassword) throws SQLException{
@@ -242,10 +251,12 @@ public class Resolver {
 		}
 		return true;
 	}
+	//TODO sanitize name input to prevent injection
 	private boolean add(ADD request){
+		if(request.username.matches("^.*[^a-zA-Z0-9 ].*$"))
+			return false;
 		byte[] salt = new byte[AuthServer.saltLength];
 		new SecureRandom().nextBytes(salt);
-		
 		String query_create = "INSERT INTO User values('" + request.username + "','" + request.name +
 				"', 0x" + Misc.getHexBytes(Hash.getStretchedSHA256(request.userPW, salt, AuthServer.stretchLength), "") + 
 				", 0x" + Misc.getHexBytes(salt, "") + ");";
@@ -314,7 +325,7 @@ public class Resolver {
 		//get the info on what to delete
 		//delete: DELETE FROM ___ WHERE user = what we want to delete
 	}
-	
+	//TODO sanitize name input to prevent injection
 	private boolean changeName(CHANGENAME request){
 		//get the name we have to change
 		//UPDATE tablename SET name = "newname" WHERE name = "oldname" AND password ="password" AND so on...

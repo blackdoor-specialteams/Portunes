@@ -56,7 +56,7 @@ public class AuthServer {
 
 	/**
 	 * @param args
-	 *            valid args are -port port#, -db userDB-file-location
+	 *            valid args are -port port#, -db userDBserverLoc
 	 */
 	public static void main(String[] args) {
 		AuthServer server = new AuthServer();
@@ -72,8 +72,12 @@ public class AuthServer {
 				System.out.println("	-port <port number>	");
 				System.out
 						.println("					set local port for the server to listen on.");
-			} else
+				System.exit(0);
+			} else{
 				System.err.println("invalid argument:" + args[i]);
+				System.exit(1);
+			}
+				
 		}
 
 		server.start();
@@ -96,7 +100,8 @@ public class AuthServer {
 	 * 
 	 * @param DBFile
 	 */
-	public void createManager(String DBFile) {
+	public void createManager(String DBServer) {
+		authManager = new Resolver(DBServer);
 		// try {
 		//authManager = new Resolver(DBFile);
 		// } catch (IOException e) {
@@ -212,13 +217,13 @@ public class AuthServer {
 		public void run() {
 			Scanner keyboard = new Scanner(System.in);
 			String input;
-			System.out.println("exit to quit, save to save");
+			System.out.println("type \"exit\" to quit");
 			while (true) {
 				input = keyboard.nextLine();
 				if (input.equalsIgnoreCase("exit")) {
 					server.setRunning(false);
 					keyboard.close();
-					System.exit(1);
+					System.exit(0);
 				}
 				// else if (input.equalsIgnoreCase("save")) {
 				// System.out.println("enter location to save DB");
