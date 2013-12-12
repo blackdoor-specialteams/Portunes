@@ -392,9 +392,10 @@ public class Resolver {
 		// while rs.next(){getInfo(request + 1 time)
 		// SELECT allPreviousLogins FROM table WHERE user = "username"
 		List<Map<String, Object>> reply = new ArrayList<Map<String, Object>>();
+		Map<String, Object> replyM = null;
 		String query = "SELECT * FROM History h JOIN LogIn l USING(hid) WHERE h.userName = '"+request.username+"';"; // the history on the user with a specific username
-		int hid, ip, month, day, year, hours, minutes, i;
-		i=0;
+		int hid, month, day, year, hours, minutes;
+		InetAddress ip = null;
 		try {
 			if(connection == null)
 				connect();
@@ -402,21 +403,29 @@ public class Resolver {
 			ResultSet rs = stmt.executeQuery(query);
 			//TODO fix all this
 			while(rs.next()){
+				replyM = new HashMap<String, Object>();
 				hid = rs.getInt("hid");
-				ip = rs.getInt("ip");
+				try {
+					ip = InetAddress.getByName(rs.getString("ip"));
+					//System.out.println(rs.getString("ip"));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				month = rs.getInt("month");
 				day = rs.getInt("day");
 				year = rs.getInt("year");
 				hours = rs.getInt("hours");
 				minutes = rs.getInt("minutes");
-				reply.get(i).put("HID", hid);
-				reply.get(i).put("IP", ip);
-				reply.get(i).put("MONTH", month);
-				reply.get(i).put("DAY", day);
-				reply.get(i).put("YEAR", year);
-				reply.get(i).put("HOURS", hours);
-				reply.get(i).put("MINUTES",minutes);
-				i++;
+				replyM.put("hid", hid);
+				replyM.put("ip", ip);
+				replyM.put("month", month);
+				replyM.put("day", day);
+				replyM.put("year", year);
+				replyM.put("hours", hours);
+				replyM.put("minutes",minutes);
+				replyM.put("userName", request.username);
+				reply.add(replyM);
 			}
 			return reply;
 			
