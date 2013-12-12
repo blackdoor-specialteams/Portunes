@@ -401,8 +401,11 @@ public class AuthServer {
 			try {
 				in = (EncryptionResult) inputObject.readObject();
 				request = (Request) decryptComm(seshKey, in);
-			} catch (ClassNotFoundException | IOException e2) {
+			} catch (ClassNotFoundException e2) {
 				System.err.println(e2);
+			} catch (IOException e) {
+				System.err.println(e);
+				System.err.println("Probably failed to decrypt request");
 			}
 			return request;
 		}

@@ -260,8 +260,8 @@ public class AuthClient {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.err.println("Server probably disconnected unexpectedly");
-			e.printStackTrace();
+			System.err.println("Server probably disconnected unexpectedly or password was wrong");
+			//e.printStackTrace();
 		} finally {
 			try {
 				closeSocket();

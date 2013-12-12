@@ -50,7 +50,7 @@ public class Test {
 		//System.out.println(client.exchange(req1));
 		Request req2 = new HISTORY("jane");
 		req2.admin=false;
-		req2.userPW =  Hash.getSHA256("password".getBytes("UTF-8"));
+		req2.userPW =  Hash.getSHA256("passwordz".getBytes("UTF-8"));
 		System.out.println(client.exchange(req2));
 	}
 
