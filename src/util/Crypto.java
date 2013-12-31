@@ -267,6 +267,22 @@ public class Crypto {
 			this.iv = iv;
 			this.salt = salt;
 		}
+		public EncryptionResult(byte[] simpleSerial){
+			
+		}
+		/**
+		 * needs testing
+		 * @return the encryption result as a byte array in the form (ivLength|iv|ciphertext) 
+		 */
+		public byte[] simpleSerial(){
+			byte[] out = new byte[output.length + iv.length + 1];
+			out[0] = (byte) iv.length;
+			System.arraycopy(iv, 0, out, 1, iv.length);
+			System.arraycopy(output, 0, out, iv.length, output.length);
+			return out;
+		}
+		
+		
 		/**
 		 * @return the cipherText
 		 */
