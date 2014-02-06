@@ -26,7 +26,7 @@ import javax.xml.bind.DatatypeConverter;
 //import java.util.UUID;
 
 
-import cfg.Settings.AuthServerSettings;
+import cfg.PublicSettings.AuthServerSettings;
 //import auth.AuthRequest.Operation;
 import auth.Resolver.UserNotFoundException;
 //import util.Hash;

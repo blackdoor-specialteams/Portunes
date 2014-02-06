@@ -21,8 +21,10 @@ import java.util.Map;
 //import com.mysql.jdbc.*;
 
 
-import cfg.Settings;
-import cfg.Settings.SQLDatabaseSettings;
+
+
+import cfg.PrivateSettings.TicketSettings;
+import cfg.PrivateSettings.SQLDatabaseSettings;
 import blackdoor.auth.AuthTicket;
 import blackdoor.util.SHE;
 import util.Hash;
@@ -547,8 +549,8 @@ public class Resolver {
 	
 	private byte[] getTicket(String userName, byte[] password, InetAddress origin){
 		if(isValidUser(userName, password)){
-			AuthTicket ticket = new AuthTicket(userName, Settings.Ticket.SESSON_DURATION, origin, (byte) 0);
-			return ticket.generate(Settings.Ticket.TICKET_KEY);
+			AuthTicket ticket = new AuthTicket(userName, TicketSettings.SESSON_DURATION, origin, (byte) 0);
+			return ticket.generate(TicketSettings.TICKET_KEY);
 		}else{
 			byte[] fake = new byte[(int) (SHE.BLOCKSIZE +  Math.ceil((float)(16+userName.length())/SHE.BLOCKSIZE)*SHE.BLOCKSIZE)];
 			new SecureRandom().nextBytes(fake);
