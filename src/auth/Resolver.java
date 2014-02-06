@@ -5,17 +5,12 @@ package auth;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,13 +18,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
-
 //import com.mysql.jdbc.*;
 
 
-
-
+import cfg.Settings;
+import cfg.Settings.SQLDatabaseSettings;
+import blackdoor.auth.AuthTicket;
+import blackdoor.util.SHE;
 import util.Hash;
 import util.Misc;
 import util.Watch;
@@ -40,11 +35,11 @@ import util.Watch;
  */
 public class Resolver {
 	private Connection connection = null;
-	private String serverAddress = "localhost";
-	private final int PORT = 3306;
-	private final String DATABASE = "Portunes";
-	private final String USERNAME = "portunes";
-	private final String PASSWORD = "drowssap";
+	private String serverAddress = SQLDatabaseSettings.serverAddress;//"localhost";
+	private final int PORT = SQLDatabaseSettings.PORT;// = 3306;
+	private final String DATABASE = SQLDatabaseSettings.DATABASE;// = "Portunes";
+	private final String USERNAME = SQLDatabaseSettings.USERNAME;// = "portunes";
+	private final String PASSWORD = SQLDatabaseSettings.PASSWORD;// = "drowssap";
 	/**
 	 * notes:
 	 * working with IPv4 addresses in mySQL:
@@ -157,6 +152,9 @@ public class Resolver {
 		}*/
 		switch(request.operation){
 		// In each switch statement make query = to something different depending on what we want to query
+			case TICKET:
+				request.setReply(getTicket(request.username, request.userPW, request.origin));
+				break;
 			case ADD: 
 				if(isAdmin(request.adminName)){
 					request.setReply(add((ADD) request));
@@ -545,6 +543,17 @@ public class Resolver {
 				}
 		}
 		return ret;
+	}
+	
+	private byte[] getTicket(String userName, byte[] password, InetAddress origin){
+		if(isValidUser(userName, password)){
+			AuthTicket ticket = new AuthTicket(userName, Settings.Ticket.SESSON_DURATION, origin, (byte) 0);
+			return ticket.generate(Settings.Ticket.TICKET_KEY);
+		}else{
+			byte[] fake = new byte[(int) (SHE.BLOCKSIZE +  Math.ceil((float)(16+userName.length())/SHE.BLOCKSIZE)*SHE.BLOCKSIZE)];
+			new SecureRandom().nextBytes(fake);
+			return fake;
+		}
 	}
 	
 	private boolean isValidUser(String userName2Check, byte[] password){
