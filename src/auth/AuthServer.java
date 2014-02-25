@@ -26,6 +26,8 @@ import javax.xml.bind.DatatypeConverter;
 //import java.util.UUID;
 
 
+
+import cfg.PrivateSettings.SQLDatabaseSettings;
 import cfg.PublicSettings.AuthServerSettings;
 //import auth.AuthRequest.Operation;
 import auth.Resolver.UserNotFoundException;
@@ -47,7 +49,7 @@ public class AuthServer {
 	// TODO put in actual DB
 	// TODO replace all authmanager stuff with nemo's Resolver(or whatever)
 	// private AuthManager authManager; //replace this with a SQL db manager
-	private Resolver authManager;
+	//private Resolver authManager;
 	public static final String greeting = AuthServerSettings.greeting;//"Portumnes";
 	public static final int saltLength = AuthServerSettings.saltLength;//32;
 	public static final int passLength = AuthServerSettings.passLength;//32;
@@ -64,21 +66,52 @@ public class AuthServer {
 		AuthServer server = new AuthServer();
 
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-port")) {
-				server.setPort(Integer.parseInt(args[++i]));
-			} else if (args[i].equalsIgnoreCase("-db")) {
-				server.createManager(args[++i]);
-			} else if (args[i].equalsIgnoreCase("-help")) {
-				System.out
-						.println("	-db <database>	set database for the server to reference.");
-				System.out.println("	-port <port number>	");
-				System.out
-						.println("					set local port for the server to listen on.");
-				System.exit(0);
-			} else{
-				System.err.println("invalid argument:" + args[i]);
-				System.exit(1);
+			switch(args[i].toLowerCase()){
+				case "-port":
+					server.setPort(Integer.parseInt(args[++i]));
+					break;
+				case "-db":
+					server.createManager(args[++i]);
+					break;
+				case "-dbpw":
+					SQLDatabaseSettings.PASSWORD = args [++i];
+					break;
+				case "-dbun":
+					SQLDatabaseSettings.USERNAME = args [++i];
+					break;
+				case "-dbport":
+					SQLDatabaseSettings.PORT = Integer.parseInt(args [++i]);
+					break;
+				case "-help":
+					System.out.println("	-db <database>	set database for the server to reference.");
+					System.out.println("	-dbpw <password>set password for database connection.");
+					System.out.println("	-dbun <username>set username for database connection.");
+					System.out.println("	-dbport <port>	set port for database connection.");
+					System.out.println("	-port <port number>	");
+					System.out.println("					set local port for the server to listen on.");
+					System.exit(0);
+					break;
+				default:
+					System.err.println("invalid argument:" + args[i]);
+					System.exit(1);
+					break;
 			}
+				
+//			if (args[i].equalsIgnoreCase("-port")) {
+//				server.setPort(Integer.parseInt(args[++i]));
+//			} else if (args[i].equalsIgnoreCase("-db")) {
+//				server.createManager(args[++i]);
+//			} else if (args[i].equalsIgnoreCase("-help")) {
+//				System.out
+//						.println("	-db <database>	set database for the server to reference.");
+//				System.out.println("	-port <port number>	");
+//				System.out
+//						.println("					set local port for the server to listen on.");
+//				System.exit(0);
+//			} else{
+//				System.err.println("invalid argument:" + args[i]);
+//				System.exit(1);
+//			}
 				
 		}
 
@@ -93,9 +126,9 @@ public class AuthServer {
 	 * creates a new authentication manager with new database and default
 	 * settings
 	 */
-	public void createManager() {
-		authManager = new Resolver();// AuthManager();
-	}
+//	public void createManager() {
+//		authManager = new Resolver();// AuthManager();
+//	}
 
 	/**
 	 * creates a new authentication manager with database from specified file
@@ -103,15 +136,16 @@ public class AuthServer {
 	 * @param DBFile
 	 */
 	public void createManager(String DBServer) {
-		authManager = new Resolver(DBServer);
-		// try {
-		//authManager = new Resolver(DBFile);
-		// } catch (IOException e) {
-		// System.err.println("specified file is corrupted or not a UserDB");
-		// e.printStackTrace();
-		// System.out.println("server will now quit.");
-		// System.exit(-1);
-		// }
+		//authManager = new Resolver(DBServer);
+		SQLDatabaseSettings.serverAddress = DBServer;
+//		// try {
+//		//authManager = new Resolver(DBFile);
+//		// } catch (IOException e) {
+//		// System.err.println("specified file is corrupted or not a UserDB");
+//		// e.printStackTrace();
+//		// System.out.println("server will now quit.");
+//		// System.exit(-1);
+//		// }
 	}
 
 	/**
@@ -119,9 +153,9 @@ public class AuthServer {
 	 * specified already
 	 */
 	public void start() {
-		if (authManager == null) {
-			authManager = new Resolver();// AuthManager();
-		}
+		//if (authManager == null) {
+		//	authManager = new Resolver();// AuthManager();
+		//}
 		CLI cli = new CLI(this);
 		cli.start();
 		listen(port);
@@ -155,8 +189,7 @@ public class AuthServer {
 						+ port);
 				e.printStackTrace();
 			}
-			AuthConnectionHandler handler = new AuthConnectionHandler(socket,
-					authManager);
+			AuthConnectionHandler handler = new AuthConnectionHandler(socket);
 			handler.start();
 		}
 	}
@@ -257,9 +290,9 @@ public class AuthServer {
 		private String userName;
 		private byte[] seshKey;
 
-		AuthConnectionHandler(Socket socket, Resolver manager) {
+		AuthConnectionHandler(Socket socket) {
 			this.socket = socket;
-			this.resolver = manager;
+			this.resolver = new Resolver();
 		}
 
 		public void run() {
